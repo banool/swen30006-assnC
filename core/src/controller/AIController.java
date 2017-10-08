@@ -12,6 +12,7 @@ public class AIController extends CarController {
 	// How many minimum units the wall is away from the player.
 	private int wallSensitivity = 2;
 	
+	
 	private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 	private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 	private boolean isTurningLeft = false;
@@ -40,7 +41,24 @@ public class AIController extends CarController {
 
 		// If you are not following a wall initially, find a wall to stick to!
 		if(!isFollowingWall){
-			goToWall(currentView, delta);
+			if(getSpeed() < CAR_SPEED){
+				applyForwardAcceleration();
+			}
+			// Turn towards the north
+			if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
+				lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+				applyLeftTurn(getOrientation(),delta);
+			}
+			if(checkNorth(currentView)){
+				// Turn right until we go back to east!
+				if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+					applyRightTurn(getOrientation(),delta);
+				}
+				else{
+					isFollowingWall = true;
+				}
+			}
 		}
 		// Once the car is already stuck to a wall, apply the following logic
 		else{
@@ -67,10 +85,10 @@ public class AIController extends CarController {
 					applyForwardAcceleration();
 				}
 				// If there is wall ahead, turn right!
-				if(checkWallAhead(getOrientation(),currentView) /*|| 
-				   checkTrapAhead(getOrientation(),currentView)*/){
+				if(checkWallAhead(getOrientation(),currentView)){
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					isTurningRight = true;				
+					
 				}
 
 			}
@@ -81,27 +99,8 @@ public class AIController extends CarController {
 			}
 		}
 		
-	}
-	
-	private void goToWall(HashMap<Coordinate, MapTile> currentView, float delta) {
-		if(getSpeed() < CAR_SPEED){
-			applyForwardAcceleration();
-		}
-		// Turn towards the north
-		if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
-			lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-			applyLeftTurn(getOrientation(),delta);
-		}
-		if(checkNorth(currentView)){
-			// Turn right until we go back to east!
-			if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-				lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-				applyRightTurn(getOrientation(),delta);
-			}
-			else{
-				isFollowingWall = true;
-			}
-		}
+		
+
 	}
 	
 	/**
