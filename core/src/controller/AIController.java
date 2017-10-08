@@ -41,24 +41,7 @@ public class AIController extends CarController {
 
 		// If you are not following a wall initially, find a wall to stick to!
 		if(!isFollowingWall){
-			if(getSpeed() < CAR_SPEED){
-				applyForwardAcceleration();
-			}
-			// Turn towards the north
-			if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
-				lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-				applyLeftTurn(getOrientation(),delta);
-			}
-			if(checkNorth(currentView)){
-				// Turn right until we go back to east!
-				if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-					applyRightTurn(getOrientation(),delta);
-				}
-				else{
-					isFollowingWall = true;
-				}
-			}
+			goToWall(currentView, delta);
 		}
 		// Once the car is already stuck to a wall, apply the following logic
 		else{
@@ -99,8 +82,27 @@ public class AIController extends CarController {
 			}
 		}
 		
-		
-
+	}
+	
+	private void goToWall(HashMap<Coordinate, MapTile> currentView, float delta) {
+		if(getSpeed() < CAR_SPEED){
+			applyForwardAcceleration();
+		}
+		// Turn towards the north
+		if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
+			lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+			applyLeftTurn(getOrientation(),delta);
+		}
+		if(checkNorth(currentView)){
+			// Turn right until we go back to east!
+			if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+				lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+				applyRightTurn(getOrientation(),delta);
+			}
+			else{
+				isFollowingWall = true;
+			}
+		}
 	}
 	
 	/**
