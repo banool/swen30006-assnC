@@ -12,7 +12,6 @@ public class AIController extends CarController {
 	// How many minimum units the wall is away from the player.
 	private int wallSensitivity = 2;
 	
-	
 	private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 	private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 	private boolean isTurningLeft = false;
@@ -68,10 +67,10 @@ public class AIController extends CarController {
 					applyForwardAcceleration();
 				}
 				// If there is wall ahead, turn right!
-				if(checkWallAhead(getOrientation(),currentView)){
+				if(checkWallAhead(getOrientation(),currentView) /*|| 
+				   checkTrapAhead(getOrientation(),currentView)*/){
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					isTurningRight = true;				
-					
 				}
 
 			}
