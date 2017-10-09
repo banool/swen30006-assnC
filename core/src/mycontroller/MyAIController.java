@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import controller.CarController;
 import tiles.MapTile;
+import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -25,8 +26,49 @@ public class MyAIController extends CarController{
 	// Offset used to differentiate between 0 and 360 degrees
 	private int EAST_THRESHOLD = 3;
 	
+	// TODO MY STUFF
+	private MyAISensing sensor;
+	private MyAISteering steering;
+	
 	public MyAIController(Car car) {
 		super(car);
+		sensor = new MyAISensing(this);
+		steering = new MyAISteering(this);
+	}
+	
+	
+	public void update_new(float delta) {
+		float directionToAlignWith;
+		if (!sensor.nearWall(getViewSquare())) {
+			// THIS WHOLE BLOCK COULD GET MOVED INTO A FUNCTION LIKE goToWall.
+			// We're not near a wall, so we need to find one.
+			// directionOfNearestWall can return -1 if there is no nearest wall,
+			// in which case we should just go forward. Also go forward if the
+			// car is aiming in the right direction to get to the wall.
+			directionToAlignWith = sensor.directionOfNearestWall();
+			if (directionToAlignWith == -1 || getAngle() == directionToAlignWith) {
+				steering.driveForward(CAR_SPEED);
+			} else {
+				// This is just turning on the spot.
+				// We just pick left here, but we could rotate right too.
+				// This default relative direction (left) should be a constant probably.
+				steering.alignWithDirection(directionToAlignWith, WorldSpatial.RelativeDirection.LEFT);
+			}
+		} else {
+			// We're near a wall.
+			if (!sensor.alignedWithWall(WorldSpatial.RelativeDirection.LEFT)) {
+				// But we're not aligned with it, so do that.
+				directionToAlignWith = sensor.getDirectionOfNearestWall();
+				steering.alignWithDirection(directionToAlignWith, WorldSpatial.RelativeDirection.LEFT);
+				// We could also do alignWithDirection if we could figure out the
+				// direction of the wall that we're closest to.
+			} else {
+				steering.driveForward(CAR_SPEED);
+				// Here we need the logic for not hitting traps and shit.
+				// Instead of steering.driveForward we could call a method that exists
+				// for navigating the car once we know we're along a wall.
+			}
+		}
 	}
 	
 	Coordinate initialGuess;
@@ -68,8 +110,8 @@ public class MyAIController extends CarController{
 					applyForwardAcceleration();
 				}
 				// If there is wall ahead, turn right!
-				if(checkWallAhead(getOrientation(),currentView) /*|| 
-				   checkTrapAhead(getOrientation(),currentView)*/){
+				if(checkWallAhead(getOrientation(),currentView) || 
+				   checkTrapAhead(getOrientation(),currentView)){
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					isTurningRight = true;				
 				}
@@ -88,6 +130,7 @@ public class MyAIController extends CarController{
 		if(getSpeed() < CAR_SPEED){
 			applyForwardAcceleration();
 		}
+		
 		// Turn towards the north
 		if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
 			lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
@@ -268,6 +311,38 @@ public class MyAIController extends CarController{
 		
 		}
 		
+	}
+	
+	private boolean checkTrapAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
+		int x_mod, y_mod;
+		switch(orientation){
+		case EAST:
+			x_mod = 1;
+			y_mod = 0;
+			break;
+		case NORTH:
+			x_mod = 0;
+			y_mod = 1;
+			break;
+		case SOUTH:
+			x_mod = 0;
+			y_mod = -1;
+			break;
+		case WEST:
+			x_mod = -1;
+			y_mod = 0;
+			break;
+		default:
+			return false;
+		}
+		Coordinate currentPosition = new Coordinate(getPosition());
+		for(int i = 0; i <= wallSensitivity; i++){
+			MapTile tile = currentView.get(new Coordinate(currentPosition.x+(i*x_mod), currentPosition.y+(i*y_mod)));
+			if(tile instanceof TrapTile) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
