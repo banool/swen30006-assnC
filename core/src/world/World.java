@@ -63,7 +63,7 @@ public class World {
 		
 		// Add the car controller
 		// controller = new ManualController(car);
-		/// controller = new AIController(car);
+		// controller = new AIController(car);
 		controller = new MyAIController(car);
 	}
 	
