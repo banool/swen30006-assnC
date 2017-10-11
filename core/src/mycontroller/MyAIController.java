@@ -3,6 +3,7 @@ package mycontroller;
 import java.util.HashMap;
 
 import controller.CarController;
+import manoeuvres.Manoeuvre;
 import tiles.MapTile;
 import tiles.TrapTile;
 import utilities.Coordinate;
@@ -29,13 +30,24 @@ public class MyAIController extends CarController {
     private int EAST_THRESHOLD = 3;
 
     // TODO MY STUFF
-    private MyAISensing sensor;
-    private MyAISteering steering;
+    private MyAISensor sensor;
+    private MyAINavigator navigator;
+    private Manoeuvre activeManeuver;
+    private SensorData latestSensorData;
 
     public MyAIController(Car car) {
         super(car);
-        sensor = new MyAISensing(this);
-        steering = new MyAISteering(this);
+        sensor = new MyAISensor(this);
+        navigator = new MyAINavigator(this);
+    }
+    
+    public void update(float delta) {
+    		latestSensorData = sensor.getSensorData();
+    		navigator.update(latestSensorData);
+    		if (navigator.maneuverHasChanged()) {
+    			activeManeuver = navigator.getManeuver();
+    		}
+    		activeManeuver.update(delta, latestSensorData);
     }
 
 
@@ -74,8 +86,9 @@ public class MyAIController extends CarController {
     }
 
     @Override
-    public void update(float delta) {
+    public void update_old(float delta) {
 
+    		System.out.println(getAngle());
         // Gets what the car can see
         HashMap<Coordinate, MapTile> currentView = getView();
 
@@ -443,6 +456,10 @@ public class MyAIController extends CarController {
             }
         }
         return false;
+    }
+    
+    public float getTopSpeed() {
+    		return CAR_SPEED;
     }
 
 }

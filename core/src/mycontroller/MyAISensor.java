@@ -14,20 +14,20 @@ import utilities.Coordinate;
  *
  * @author daniel
  */
-public class MyAISensing {
+public class MyAISensor {
 
     private MyAIController controller;
 
-    private Coordinate currentPosition;
-    private HashMap<Coordinate, MapTile> currentView;
-
-    public MyAISensing(MyAIController controller) {
+    public MyAISensor(MyAIController controller) {
         this.controller = controller;
     }
 
     public void update(float delta) {
-        currentView = controller.getView();
-        currentPosition = new Coordinate(controller.getPosition());
+
+    }
+    
+    public SensorData getSensorData() {
+    		return new SensorData(controller);
     }
 
     /**
