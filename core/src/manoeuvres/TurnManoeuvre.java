@@ -16,6 +16,7 @@ public class TurnManoeuvre extends Manoeuvre {
 	private WorldSpatial.RelativeDirection turnDirection;
 	private float startAngle;
 	private float turnAmount;
+	private GoForwardManoeuvre goForwardManoeuvre;
 	
 	public TurnManoeuvre(MyAIController controller, 
 			            WorldSpatial.RelativeDirection turnDirection,
@@ -27,7 +28,7 @@ public class TurnManoeuvre extends Manoeuvre {
 		this.turnAmount = turnAmount;
 	}
 	
-	// TODO this logic might not be right, but I'm just filling in the structure.
+	// TODO this logic is not be right, but I'm just filling in the structure.
 	public void update(float delta, SensorData sensorData) {
 		float difference = difference(startAngle, controller.getAngle());
 		while (difference < turnAmount) {
@@ -35,6 +36,10 @@ public class TurnManoeuvre extends Manoeuvre {
 		}
 	}
 	
+	// TODO In order to do this cheeky turning thing where we turn the other
+	// way and apply reverse acceleration, we need to know if we are braking.
+	// Alternatively, we could do the drive forward logic here too instead of
+	// in a separate nested Manoeuvre (GoForwardManoeuvre).
 	private void turn(float delta) {
 		if (turnDirection == WorldSpatial.RelativeDirection.LEFT) {
 			controller.turnLeft(delta);
