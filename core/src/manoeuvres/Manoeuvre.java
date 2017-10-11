@@ -11,14 +11,14 @@ import mycontroller.SensorData;
  *
  */
 public abstract class Manoeuvre {
-	
-	// TODO so we don't have to use getController.
-	protected MyAIController controller;
-	
-	public Manoeuvre(MyAIController controller) {
-		this.controller = controller;
-	}
-	
-	public abstract void update(float delta, SensorData sensorData);
+    
+    // TODO so we don't have to use getController.
+    protected MyAIController controller;
+    
+    public Manoeuvre(MyAIController controller) {
+        this.controller = controller;
+    }
+    
+    public abstract void update(float delta, SensorData sensorData);
 
 }
