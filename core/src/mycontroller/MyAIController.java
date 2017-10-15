@@ -5,6 +5,8 @@ import java.util.Stack;
 
 import controller.CarController;
 import manoeuvres.Manoeuvre;
+import pathfinders.IPathFinder;
+import pathfollowers.IPathFollower;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -36,7 +38,7 @@ public class MyAIController extends CarController {
     		if (activePathFinder.isDone()) {
     		    activePathFinder = pathFinderStack.pop();
     		}
-        coordsToFollow = activePathFinder.update(latestSensorData);
+        coordsToFollow = activePathFinder.update(latestSensorData, pathFinderStack);
         pathFollower.update(delta, coordsToFollow, latestSensorData);
     }
     

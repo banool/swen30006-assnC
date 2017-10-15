@@ -1,7 +1,8 @@
-package mycontroller;
+package pathfollowers;
 
 import java.util.ArrayList;
 
+import mycontroller.SensorData;
 import utilities.Coordinate;
 
 public interface IPathFollower {
