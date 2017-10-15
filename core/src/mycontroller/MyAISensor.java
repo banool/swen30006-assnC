@@ -22,8 +22,8 @@ public class MyAISensor {
         this.controller = controller;
     }
 
-    public void update(float delta) {
-
+    public SensorData update() {
+        return new SensorData(controller);
     }
     
     public SensorData getSensorData() {
