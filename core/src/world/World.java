@@ -45,6 +45,7 @@ public class World {
 	private static String[] LAYER_NAME = {"Road","Utility","Trap","Wall"};
 	
 	private static HashMap<Coordinate,MapTile> mapTiles = new HashMap<Coordinate,MapTile>();
+	private static HashMap<Coordinate,MapTile> providedMapTiles0 = new HashMap<Coordinate,MapTile>();
 	private static HashMap<Coordinate,MapTile> providedMapTiles = new HashMap<Coordinate,MapTile>();
 	private static Coordinate start, carStart;
 	private static List<Coordinate> finish = new ArrayList<Coordinate>();
@@ -159,6 +160,21 @@ public class World {
 	public Car getCar(){
 		return this.car;
 	}
+	
+    /* NOTE: This is the new getMap(). */
+    public static HashMap<Coordinate, MapTile> getMap0() {
+        if (providedMapTiles0.keySet().size() == 0) { // Lazy initialisation
+            for (Coordinate coord : mapTiles.keySet()) {
+                int reverseYAxis = MAP_HEIGHT - coord.y;
+                Coordinate newCoord = new Coordinate(coord.x, reverseYAxis);
+                MapTile current = mapTiles.get(coord);
+                if (current.isType(MapTile.Type.TRAP))
+                    current = new MapTile(MapTile.Type.ROAD);
+                providedMapTiles0.put(newCoord, current);
+            }
+        }
+        return providedMapTiles0;
+    }
 	
 	public static HashMap<Coordinate,MapTile> getMap(){
 		if(providedMapTiles.keySet().size() == 0){ // Lazy initialisation

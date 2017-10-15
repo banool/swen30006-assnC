@@ -131,6 +131,10 @@ public abstract class CarController {
         return car.getOrientation();
     }
 
+    public HashMap<Coordinate, MapTile> getMap0() {
+        return World.getMap0();
+    }
+    
     public HashMap<Coordinate, MapTile> getMap() {
         return World.getMap();
     }
