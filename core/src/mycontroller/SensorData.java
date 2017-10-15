@@ -31,5 +31,7 @@ public class SensorData {
 		SPEED = controller.getSpeed();
 		ANGLE = controller.getAngle();
 		HEALTH = controller.getHealth();
+		/* TODO add a bool for isFollowingWall, and an
+		 * appropriate method for getting this info. */
 	}
 }

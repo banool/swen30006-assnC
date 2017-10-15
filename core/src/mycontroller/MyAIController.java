@@ -1,11 +1,10 @@
 package mycontroller;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Stack;
 
 import controller.CarController;
 import manoeuvres.Manoeuvre;
-import tiles.MapTile;
-import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -16,20 +15,29 @@ public class MyAIController extends CarController {
 
     /* TODO Comment this! */
     private MyAISensor sensor;
-    private MyAINavigator navigator;
-    private Manoeuvre activeManoeuvre;
+    private IPathFinder activePathFinder;
+    private Stack<IPathFinder> pathFinderStack;
+    private IPathFollower pathFollower;
+    
     private SensorData latestSensorData;
+    private ArrayList<Coordinate> coordsToFollow;
 
     public MyAIController(Car car) {
         super(car);
         sensor = new MyAISensor(this);
-        navigator = new MyAINavigator(this);
+        // TODO comment, empty stack at the start.
+        pathFinderStack = new Stack<IPathFinder>();
+        // TODO comment set the starting pathfinder to Explore.
+        activePathFinder = new PathFinderExplore(this);
     }
     
     public void update(float delta) {
     		latestSensorData = sensor.getSensorData();
-    		activeManoeuvre = navigator.update(latestSensorData);
-    		activeManoeuvre.update(delta, latestSensorData);
+    		if (activePathFinder.isDone()) {
+    		    activePathFinder = pathFinderStack.pop();
+    		}
+        coordsToFollow = activePathFinder.update(latestSensorData);
+        pathFollower.update(delta, coordsToFollow, latestSensorData);
     }
     
     public float getTopSpeed() {
