@@ -7,6 +7,7 @@ import controller.CarController;
 import pathfinders.IPathFinder;
 import pathfinders.PathFinderExplore;
 import pathfollowers.IPathFollower;
+import pathfollowers.PathFollowerBasic;
 import utilities.Coordinate;
 import world.Car;
 
@@ -16,8 +17,8 @@ public class MyAIController extends CarController {
 
     /* TODO Comment this! */
     private MyAISensor sensor;
-    private IPathFinder activePathFinder;
     private Stack<IPathFinder> pathFinderStack;
+    private IPathFinder activePathFinder;
     private IPathFollower pathFollower;
     
     private SensorData latestSensorData;
@@ -32,8 +33,10 @@ public class MyAIController extends CarController {
         // Something about defaults, maybe this could be more configurable.
         // Probably not something we have to worry about though.
         activePathFinder = new PathFinderExplore(pathFinderStack);
+        pathFollower = new PathFollowerBasic();
     }
     
+    // TODO comment this heavily
     public void update(float delta) {
     		latestSensorData = sensor.update();
     		if (activePathFinder.isDone()) {
