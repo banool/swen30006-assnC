@@ -23,11 +23,11 @@ public class MyAISensor {
     }
 
     public SensorData update() {
-        return new SensorData(controller);
-    }
-    
-    public SensorData getSensorData() {
-    		return new SensorData(controller);
+        HashMap<Coordinate, MapTile> currentView = controller.getView();
+        float speed = controller.getSpeed();
+        float angle = controller.getAngle();
+        int health = controller.getHealth();
+        return new SensorData(currentView, speed, angle, health);
     }
 
     /**
