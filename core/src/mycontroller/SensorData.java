@@ -15,19 +15,23 @@ import world.WorldSpatial;
  * so all the attributes are set to final. As such we're
  * not using getters and settings.
  * 
+ * TODO talk about this in the design rationale.
+ * 
  * @author daniel
  *
  */
 public class SensorData {
-	public final HashMap<Coordinate, MapTile> CURRENTVIEW;
+	public final HashMap<Coordinate, MapTile> CURRENT_VIEW;
 	public final float SPEED;
 	public final float ANGLE;
 	public final int HEALTH;
+	public final WorldSpatial.RelativeDirection TURNING;
 
 	public SensorData(MyAIController controller) {
-		CURRENTVIEW = controller.getView();
+		CURRENT_VIEW = controller.getView();
 		SPEED = controller.getSpeed();
 		ANGLE = controller.getAngle();
 		HEALTH = controller.getHealth();
+		TURNING = controller.getTurningDirection();
 	}
 }
