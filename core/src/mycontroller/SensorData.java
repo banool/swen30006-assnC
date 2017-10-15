@@ -25,13 +25,11 @@ public class SensorData {
 	public final float SPEED;
 	public final float ANGLE;
 	public final int HEALTH;
-	public final WorldSpatial.RelativeDirection TURNING;
 
 	public SensorData(MyAIController controller) {
 		CURRENT_VIEW = controller.getView();
 		SPEED = controller.getSpeed();
 		ANGLE = controller.getAngle();
 		HEALTH = controller.getHealth();
-		TURNING = controller.getTurningDirection();
 	}
 }
