@@ -16,17 +16,16 @@ public class MyAIController extends CarController {
     private final float CAR_SPEED = 3;
 
     /* TODO Comment this! */
-    private MyAISensor sensor;
+    private Sensor sensor;
     private Stack<IPathFinder> pathFinderStack;
     private IPathFinder activePathFinder;
     private IPathFollower pathFollower;
-    
-    private SensorData latestSensorData;
+
     private ArrayList<Coordinate> coordsToFollow;
 
     public MyAIController(Car car) {
         super(car);
-        sensor = new MyAISensor(this);
+        sensor = new Sensor(this);
         // TODO comment, empty stack at the start.
         pathFinderStack = new Stack<IPathFinder>();
         // TODO comment set the starting pathfinder to Explore.
@@ -38,12 +37,12 @@ public class MyAIController extends CarController {
     
     // TODO comment this heavily
     public void update(float delta) {
-    		latestSensorData = sensor.update();
+    		sensor.update();
     		if (activePathFinder.isDone()) {
     		    activePathFinder = pathFinderStack.pop();
     		}
-        coordsToFollow = activePathFinder.update(latestSensorData);
-        pathFollower.update(this, delta, coordsToFollow, latestSensorData);
+        coordsToFollow = activePathFinder.update(sensor);
+        pathFollower.update(this, delta, coordsToFollow, sensor);
     }
     
     public float getTopSpeed() {
