@@ -32,7 +32,7 @@ public class MyAIController extends CarController {
         // Something about defaults, maybe this could be more configurable.
         // Probably not something we have to worry about though.
         activePathFinder = new PathFinderExplore(pathFinderStack, sensor);
-        pathFollower = new PathFollowerBasic();
+        pathFollower = new PathFollowerBasic(this, sensor);
     }
 
     // TODO comment this heavily
@@ -42,7 +42,7 @@ public class MyAIController extends CarController {
             activePathFinder = pathFinderStack.pop();
         }
         coordsToFollow = activePathFinder.update();
-        pathFollower.update(this, delta, coordsToFollow, sensor);
+        pathFollower.update(delta, coordsToFollow);
     }
 
     public float getTopSpeed() {
