@@ -58,6 +58,7 @@ public class Sensor {
      * @param tileType
      * @return ...
      */
+    // TODO, I think this should just return the HashMap<Coordinate, MapTile> that we're used to.
     public boolean isTileAhead(WorldSpatial.Direction orientation, MapTile.Type tileType) {
         LinkedList <MapTile> tilesAhead = getTilesInDirection(orientation);
         while (!tilesAhead.isEmpty()) {
@@ -69,6 +70,7 @@ public class Sensor {
     }
 
 
+    // TODO, I think this should just return the HashMap<Coordinate, MapTile> that we're used to.
     private LinkedList<MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         LinkedList<MapTile> tiles = new LinkedList<MapTile>();
         int[] mod = modmap.get(orientation);
@@ -96,13 +98,13 @@ public class Sensor {
         return isTileAhead(orientation, MapTile.Type.TRAP);
     }
     
-    public Coordinate getNearestWall() {
+    public Coordinate getNearestTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
         for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
             Coordinate key = entry.getKey();
             MapTile value = entry.getValue();
-            // Initialise the nearest value with the first in the hashmap.
-            if (value instanceof MapTile) {
+            if (tileTypes.contains(value.getType())) {
+                // Initialise the nearest value with the first in the hashmap.
                 if (nearest == null) {
                     nearest = key;
                 }
