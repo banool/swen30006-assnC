@@ -6,11 +6,11 @@ import mycontroller.Sensor;
 import utilities.Coordinate;
 
 public interface IPathFinder {
-    
-    // TODO comment, specifically about how the update method needs a reference
-    // to the stack so this IPathFinder can push a new IPathFinder onto the stack.
-    public ArrayList<Coordinate> update(Sensor sensor);
-    
+
+    // TODO comment on how we don't take the Sensor anymore in update, since we
+    // have a reference to it from the constructor.
+    public ArrayList<Coordinate> update();
+
     public boolean isDone();
 
 }
