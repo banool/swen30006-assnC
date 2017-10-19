@@ -95,21 +95,45 @@ public class Sensor {
     public boolean isTrapAhead() {
         return isTileAhead(orientation, MapTile.Type.TRAP);
     }
+    
+    public Coordinate getNearestWall() {
+        Coordinate nearest = null;
+        for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
+            Coordinate key = entry.getKey();
+            MapTile value = entry.getValue();
+            // Initialise the nearest value with the first in the hashmap.
+            if (value instanceof MapTile) {
+                if (nearest == null) {
+                    nearest = key;
+                }
+                if (key.distance(currentPosition) < nearest.distance(currentPosition)) {
+                    nearest = key;
+                }
+            }
+        }
+        return nearest;        
+    }
+    
+    public Coordinate getFurtherPointInDirection(WorldSpatial.Direction direction) {
+        int newX = currentPosition.x + modmap.get(direction)[0] * VISION_AHEAD;
+        int newY = currentPosition.y + modmap.get(direction)[1] * VISION_AHEAD;
+        return new Coordinate(newX, newY);
+    }
 
 
     public Coordinate getPosition() {
         // METHOD STUB
-        return new Coordinate(0, 0);
+        return new Coordinate(controller.getPosition());
     }
 
     public float getAngle() {
         // METHOD STUB
-        return (float) 0.0;
+        return controller.getAngle();
     }
 
     public WorldSpatial.Direction getOrientation() {
         // METHOD STUB
-        return WorldSpatial.Direction.EAST;
+        return controller.getOrientation();
     }
 
     public HashMap<Coordinate, MapTile> getCurrentView() {
