@@ -3,16 +3,19 @@ package pathfollowers;
 import java.util.ArrayList;
 
 import mycontroller.MyAIController;
-import mycontroller.SensorData;
+import mycontroller.Sensor;
 import utilities.Coordinate;
 
 public class PathFollowerBasic implements IPathFollower {
+    
+    public PathFollowerBasic(MyAIController controller, Sensor sensor) {
+        // TODO boi
+    }
 
     @Override
-    public void update(MyAIController controller, float delta, ArrayList<Coordinate> coordsToFollow,
-            SensorData latestSensorData) {
+    public void update(float delta, ArrayList<Coordinate> coordsToFollow) {
         // TODO Auto-generated method stub
-
+        
     }
 
 }
