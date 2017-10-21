@@ -29,18 +29,8 @@ public class Sensor {
         this.angle = controller.getAngle();
         this.orientation = controller.getOrientation();
     }
-
-
-    /**
-     * Returns whether a tile of a provided class is in the provided direction.
-     * Call using, for example, isTileAhead(WorldSpatial.Direction.NORTH, MapTile.class)
-     * Or, a version of checkWallAhead -> isTileAhead(orientation, MapTile.Type.WALL);
-     * @param orientation
-     * @param tileType
-     * @return ...
-     */
-     // TODO remove this comment yeah? I got rid of isTileAhead after all.
-
+    
+    /* TODO comment about what this section of methods are for maybe. */
 
     private HashMap<Coordinate, MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
@@ -106,13 +96,11 @@ public class Sensor {
      * If we wanted to just consider the immediate left, we could use isBesideTileOfTypes.
      * @return boolean true if the wall is on the car's LHS
      */
-    public boolean isFollowingWall() {
-        ArrayList<MapTile.Type> wall = new ArrayList<MapTile.Type>();
-        wall.add(MapTile.Type.WALL);
-        return getClosestTileInDirectionOfTypes(WorldSpatial.getLeftOf(orientation), wall) != null;
+    public boolean isFollowingTileTypes(ArrayList<MapTile.Type> tileTypes) {
+        return getClosestTileInDirectionOfTypes(WorldSpatial.getLeftOf(orientation), tileTypes) != null;
     }
     
-    public boolean isBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
+    public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y)).getType())) {
             return true;
         }

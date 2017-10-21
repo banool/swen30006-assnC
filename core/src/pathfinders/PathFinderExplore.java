@@ -34,7 +34,7 @@ public class PathFinderExplore implements IPathFinder {
     @Override
     public ArrayList<Coordinate> update() {
         System.out.println(sensor.getOrientation());
-        if (!sensor.isBesideTileOfTypes(tileTypesToAvoid)) {
+        if (!sensor.isDirectlyBesideTileOfTypes(tileTypesToAvoid)) {
             System.out.println("Getting adjacent to wall/trap");
             return getToWallTrap();
         } else {
@@ -47,7 +47,7 @@ public class PathFinderExplore implements IPathFinder {
     private ArrayList<Coordinate> getToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
         Coordinate targetCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
-        targetCoordinate = sensor.getNearestTileTypesNearCoordinate(targetCoordinate);
+        targetCoordinate = sensor.getNearestTileTypesNearCoordinate(targetCoordinate, tileTypesToAvoid);
         if (targetCoordinate != null) {
             target.add(targetCoordinate);
             return target;
@@ -61,7 +61,7 @@ public class PathFinderExplore implements IPathFinder {
     private ArrayList<Coordinate> followWallTrap() {
         // We're beside a wall/trap, follow it, avoiding walls and traps in front.
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
-        if (!sensor.isFollowingWall()) {
+        if (!sensor.isFollowingTileTypes(tileTypesToAvoid)) {
             // We're beside a wall, but not aligned with it.
             // Say that we need to turn left.
             System.out.println("ehhh");
