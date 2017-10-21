@@ -64,17 +64,25 @@ public class PathFinderExplore implements IPathFinder {
         if (!sensor.isFollowingWall()) {
             // We're beside a wall, but not aligned with it.
             // Say that we need to turn left.
-            Coordinate closestToSide = sensor.getClosestTileInDirectionOfType(WorldSpatial.RelativeDirection.LEFT, tileTypesToTarget);
+            System.out.println("ehhh");
+            Coordinate closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT, tileTypesToTarget);
             if (closestToSide == null) {
                 // Turning left would crash us into a wall/trap, turn right instead.
-                closestToSide = sensor.getClosestTileInDirectionOfType(WorldSpatial.RelativeDirection.RIGHT, tileTypesToTarget);
+                //closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.RIGHT, tileTypesToTarget);
             }
+            System.out.println("???");
             target.add(closestToSide);
         } else {
             // We're aligned with the wall beside us, just go in the direction we're facing.
-            target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
+            Coordinate wallInFront = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT, tileTypesToAvoid);
+            if (wallInFront == null) {
+                // There's no wall/trap in front in vision, just gun it forward.
+                target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
+            } else {
+                // For now just use the point beside the upcoming wall so we slow down.
+                target.add(sensor.getNearestRoadNearCoordinate(wallInFront));
+            }
         }
-        System.out.println(target);
         return target;
         // TODO deal with avoiding obstacles.
     }

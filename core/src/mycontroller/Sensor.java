@@ -43,38 +43,12 @@ public class Sensor {
      * @param tileType
      * @return ...
      */
-    // TODO, I think this should just return the HashMap<Coordinate, MapTile> that we're used to.
-    public boolean isTileAhead(WorldSpatial.Direction orientation, MapTile.Type tileType) {
-        LinkedList <MapTile> tilesAhead = getTilesInDirection(orientation);
-        while (!tilesAhead.isEmpty()) {
-            if (tilesAhead.poll().isType(tileType)) {
-                return true;
-            }
-        }
-        return false;
-    }
+     // TODO remove this comment yeah? I got rid of isTileAhead after all.
 
 
-    // TODO, I think this should just return the HashMap<Coordinate, MapTile> that we're used to.
-    private LinkedList<MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
-        LinkedList<MapTile> tiles = new LinkedList<MapTile>();
-        int[] mod = WorldSpatial.modMap.get(orientation);
-        for (int i = 0; i <= VISION_AHEAD; i++) {
-            tiles.add(currentView.get(new Coordinate(currentPosition.x + (i * mod[0]),
-                    currentPosition.y + (i * mod[1]))));
-        }
-        return tiles;
-    }
-    
-    public HashMap<Coordinate,MapTile> getTilesInDirection(WorldSpatial.RelativeDirection direction) {
+    private HashMap<Coordinate, MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
-        // Get the direction to the left.
-        int[] mod  = WorldSpatial.modMap.get(WorldSpatial.leftOf.get(orientation));
-        if (direction == WorldSpatial.RelativeDirection.RIGHT) {
-            // If we needed the right, just go counterclockwise twice more.
-            mod = WorldSpatial.modMap.get(WorldSpatial.leftOf.get(orientation));
-            mod = WorldSpatial.modMap.get(WorldSpatial.leftOf.get(orientation));
-        }
+        int[] mod = WorldSpatial.modMap.get(orientation);
         for (int i = 1; i <= VISION_AHEAD; i++) {
             Coordinate toCheck = new Coordinate(currentPosition.x + (i * mod[0]), currentPosition.y + (i * mod[1]));
             tiles.put(toCheck, currentView.get(toCheck));
@@ -82,8 +56,25 @@ public class Sensor {
         return tiles;
     }
     
-    public Coordinate getClosestTileInDirectionOfType(WorldSpatial.RelativeDirection direction, ArrayList<MapTile.Type> tileTypes) {
-        HashMap<Coordinate,MapTile> tilesInDirection = getTilesInDirection(direction);
+    /**
+     * This method just reroutes RelativeDirection arguments through into the
+     * regular Direction based method.
+     * @param direction
+     * @return
+     */
+    public HashMap<Coordinate,MapTile> getTilesInDirection(WorldSpatial.RelativeDirection direction) {
+        return getTilesInDirection(WorldSpatial.getToSideOf(orientation, direction));
+    }
+    
+    /**
+     * Gets the closest tile of a specified list of types in the given direction.
+     * @param direction
+     * @param tileTypes
+     * @return
+     */
+    public Coordinate getClosestTileInDirectionOfTypes(WorldSpatial.Direction orientation, ArrayList<MapTile.Type> tileTypes) {
+        HashMap<Coordinate,MapTile> tilesInDirection = getTilesInDirection(orientation);
+        // Loop through the tiles in the given direction and find the closest of the specified type.
         Coordinate nearest = null;
         for (Map.Entry<Coordinate, MapTile> entry : tilesInDirection.entrySet()) {
             Coordinate key = entry.getKey();
@@ -100,14 +91,29 @@ public class Sensor {
         }
         return nearest;        
     }
+    
+    /**
+     * This method just acts a RelativeDirection front end for the Direction based version.
+     * It does this by converting the RelativeDirection into a Direction based on the current orientation.
+     * @param direction
+     * @param tileTypes
+     * @return
+     */
+    public Coordinate getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection direction, ArrayList<MapTile.Type> tileTypes) {
+        return getClosestTileInDirectionOfTypes(WorldSpatial.getToSideOf(orientation, direction), tileTypes);      
+    }
 
 
     /**
      * Checks if the wall is on the car's left hand side
+     * NOTE TODO, this doesnt just consider the immediate left, but the left within vision.
+     * If we wanted to just consider the immediate left, we could use isBesideTileOfTypes.
      * @return boolean true if the wall is on the car's LHS
      */
     public boolean isFollowingWall() {
-        return isTileAhead(WorldSpatial.leftOf.get(orientation), MapTile.Type.WALL);
+        ArrayList<MapTile.Type> wall = new ArrayList<MapTile.Type>();
+        wall.add(MapTile.Type.WALL);
+        return getClosestTileInDirectionOfTypes(WorldSpatial.getLeftOf(orientation), wall) != null;
     }
     
     public boolean isBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
@@ -124,14 +130,6 @@ public class Sensor {
             return true;
         }
         return false;
-    }
-
-
-    public boolean isWallAhead() {
-        return isTileAhead(orientation, MapTile.Type.WALL);
-    }
-    public boolean isTrapAhead() {
-        return isTileAhead(orientation, MapTile.Type.TRAP);
     }
     
     /**
