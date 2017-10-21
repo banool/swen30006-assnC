@@ -47,7 +47,7 @@ public class PathFinderExplore implements IPathFinder {
     private ArrayList<Coordinate> getToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
         Coordinate targetCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
-        targetCoordinate = sensor.getNearestRoadNearCoordinate(targetCoordinate);
+        targetCoordinate = sensor.getNearestTileTypesNearCoordinate(targetCoordinate);
         if (targetCoordinate != null) {
             target.add(targetCoordinate);
             return target;
@@ -80,7 +80,7 @@ public class PathFinderExplore implements IPathFinder {
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
             } else {
                 // For now just use the point beside the upcoming wall so we slow down.
-                target.add(sensor.getNearestRoadNearCoordinate(wallInFront));
+                target.add(sensor.getNearestTileTypesNearCoordinate(wallInFront, tileTypesToTarget));
             }
         }
         return target;

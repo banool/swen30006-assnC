@@ -2,11 +2,9 @@ package mycontroller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import tiles.MapTile;
-import tiles.TrapTile;
 import world.WorldSpatial;
 import utilities.Coordinate;
 
@@ -22,9 +20,7 @@ public class Sensor {
 
 
     public Sensor(MyAIController controller) {
-
         this.controller = controller;
-
     }
 
     public void update() {
@@ -160,12 +156,12 @@ public class Sensor {
      * @param tileTypes
      * @return
      */
-    public Coordinate getNearestRoadNearCoordinate(Coordinate coordinate) {
+    public Coordinate getNearestTileTypesNearCoordinate(Coordinate coordinate, ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
         for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
             Coordinate key = entry.getKey();
             MapTile value = entry.getValue();
-            if (value.isType(MapTile.Type.ROAD)) {
+            if (tileTypes.contains(value.getType())) {
                 // Initialise the nearest value with the first in the hashmap.
                 if (nearest == null) {
                     nearest = key;
@@ -186,23 +182,19 @@ public class Sensor {
 
 
     public Coordinate getPosition() {
-        // METHOD STUB
         return new Coordinate(controller.getPosition());
     }
 
     public float getAngle() {
-        // METHOD STUB
-        return controller.getAngle();
+        return angle;
     }
 
     public WorldSpatial.Direction getOrientation() {
-        // METHOD STUB
-        return controller.getOrientation();
+        return orientation;
     }
 
     public HashMap<Coordinate, MapTile> getCurrentView() {
-        // METHOD STUB
-        return new HashMap<Coordinate, MapTile>();
+        return currentView;
     }
 
 
