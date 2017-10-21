@@ -42,9 +42,10 @@ public class PathFinderExplore implements IPathFinder {
 
     private ArrayList<Coordinate> getToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
-        Coordinate targetDirection = sensor.getNearestTileOfTypes(tileTypesToAvoid);
-        if (targetDirection != null) {
-            target.add(targetDirection);
+        Coordinate targetCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
+        targetCoordinate = sensor.getNearestRoadNearCoordinate(targetCoordinate);
+        if (targetCoordinate != null) {
+            target.add(targetCoordinate);
             return target;
         }
         // If we get here it means that there is no wall within range.

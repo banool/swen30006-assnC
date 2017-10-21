@@ -98,6 +98,11 @@ public class Sensor {
         return isTileAhead(orientation, MapTile.Type.TRAP);
     }
     
+    /**
+     * TODO comment. This returns the nearest tile that is one of the given types.
+     * @param tileTypes
+     * @return
+     */
     public Coordinate getNearestTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
         for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
@@ -109,6 +114,29 @@ public class Sensor {
                     nearest = key;
                 }
                 if (key.distance(currentPosition) < nearest.distance(currentPosition)) {
+                    nearest = key;
+                }
+            }
+        }
+        return nearest;        
+    }
+    
+    /**
+     * This returns the road tile closest to the given coordinate.
+     * @param tileTypes
+     * @return
+     */
+    public Coordinate getNearestRoadNearCoordinate(Coordinate coordinate) {
+        Coordinate nearest = null;
+        for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
+            Coordinate key = entry.getKey();
+            MapTile value = entry.getValue();
+            if (value.isType(MapTile.Type.ROAD)) {
+                // Initialise the nearest value with the first in the hashmap.
+                if (nearest == null) {
+                    nearest = key;
+                }
+                if (key.distance(coordinate) < nearest.distance(coordinate)) {
                     nearest = key;
                 }
             }
