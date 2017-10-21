@@ -11,9 +11,7 @@ public class WorldSpatial {
     /* TODO do we want forward and backwards too? */
     public static enum RelativeDirection {
         LEFT, RIGHT
-    }
-
-    ;
+    };
 
     public final static int EAST_DEGREE_MIN = 0;
     public final static int EAST_DEGREE_MAX = 360;

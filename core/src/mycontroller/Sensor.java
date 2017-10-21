@@ -27,6 +27,7 @@ public class Sensor {
         put(WorldSpatial.Direction.SOUTH, new int[] {0, -1});
     }};
 
+    // TODO put this in WorldSpatial. Also this should maybe be called leftOf.
     private static Map<WorldSpatial.Direction,WorldSpatial.Direction> isLeftOf
             = new HashMap<WorldSpatial.Direction,WorldSpatial.Direction>() {{
         put(WorldSpatial.Direction.EAST, WorldSpatial.Direction.NORTH);
@@ -80,6 +81,41 @@ public class Sensor {
         }
         return tiles;
     }
+    
+    public HashMap<Coordinate,MapTile> getTilesInDirection(WorldSpatial.RelativeDirection direction) {
+        HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
+        // Get the direction to the left.
+        int[] mod  = modmap.get(isLeftOf.get(orientation));
+        if (direction == WorldSpatial.RelativeDirection.RIGHT) {
+            // If we needed the right, just go counterclockwise twice more.
+            mod = modmap.get(isLeftOf.get(orientation));
+            mod = modmap.get(isLeftOf.get(orientation));
+        }
+        for (int i = 1; i <= VISION_AHEAD; i++) {
+            Coordinate toCheck = new Coordinate(currentPosition.x + (i * mod[0]), currentPosition.y + (i * mod[1]));
+            tiles.put(toCheck, currentView.get(toCheck));
+        }
+        return tiles;
+    }
+    
+    public Coordinate getClosestTileInDirectionOfType(WorldSpatial.RelativeDirection direction, ArrayList<MapTile.Type> tileTypes) {
+        HashMap<Coordinate,MapTile> tilesInDirection = getTilesInDirection(direction);
+        Coordinate nearest = null;
+        for (Map.Entry<Coordinate, MapTile> entry : tilesInDirection.entrySet()) {
+            Coordinate key = entry.getKey();
+            MapTile value = entry.getValue();
+            if (tileTypes.contains(value.getType())) {
+                // Initialise the nearest value with the first in the hashmap.
+                if (nearest == null) {
+                    nearest = key;
+                }
+                if (key.distance(currentPosition) < nearest.distance(currentPosition)) {
+                    nearest = key;
+                }
+            }
+        }
+        return nearest;        
+    }
 
 
     /**
@@ -88,6 +124,22 @@ public class Sensor {
      */
     public boolean isFollowingWall() {
         return isTileAhead(isLeftOf.get(orientation), MapTile.Type.WALL);
+    }
+    
+    public boolean isBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
+        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y)).getType())) {
+            return true;
+        }
+        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x-1, currentPosition.y)).getType())) {
+            return true;
+        }
+        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x, currentPosition.y+1)).getType())) {
+            return true;
+        }
+        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x, currentPosition.y-1)).getType())) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -144,7 +196,7 @@ public class Sensor {
         return nearest;        
     }
     
-    public Coordinate getFurtherPointInDirection(WorldSpatial.Direction direction) {
+    public Coordinate getFurthestPointInDirection(WorldSpatial.Direction direction) {
         int newX = currentPosition.x + modmap.get(direction)[0] * VISION_AHEAD;
         int newY = currentPosition.y + modmap.get(direction)[1] * VISION_AHEAD;
         return new Coordinate(newX, newY);

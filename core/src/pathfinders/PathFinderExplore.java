@@ -2,6 +2,7 @@ package pathfinders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import mycontroller.Sensor;
@@ -13,6 +14,7 @@ import world.WorldSpatial;
 public class PathFinderExplore implements IPathFinder {
 
     private final ArrayList<MapTile.Type> tileTypesToAvoid;
+    private final ArrayList<MapTile.Type> tileTypesToTarget;
     private ArrayList<HashMap<Coordinate, TrapTile>> trapSections;
     private Sensor sensor;
 
@@ -22,6 +24,8 @@ public class PathFinderExplore implements IPathFinder {
         tileTypesToAvoid = new ArrayList<MapTile.Type>();
         tileTypesToAvoid.add(MapTile.Type.WALL);
         tileTypesToAvoid.add(MapTile.Type.TRAP);
+        tileTypesToTarget = new ArrayList<MapTile.Type>();
+        tileTypesToTarget.add(MapTile.Type.ROAD);
         
         this.sensor = sensor;
         start = sensor.getPosition();
@@ -30,7 +34,7 @@ public class PathFinderExplore implements IPathFinder {
     @Override
     public ArrayList<Coordinate> update() {
         System.out.println(sensor.getOrientation());
-        if (!sensor.isFollowingWall()) {
+        if (!sensor.isBesideTileOfTypes(tileTypesToAvoid)) {
             System.out.println("Getting adjacent to wall/trap");
             return getToWallTrap();
         } else {
@@ -50,14 +54,27 @@ public class PathFinderExplore implements IPathFinder {
         }
         // If we get here it means that there is no wall within range.
         // Just return the furthest point to the north within vision.
-        target.add(sensor.getFurtherPointInDirection(WorldSpatial.Direction.NORTH));
+        target.add(sensor.getFurthestPointInDirection(WorldSpatial.Direction.NORTH));
         return target;
     }
     
     private ArrayList<Coordinate> followWallTrap() {
-        // We're aligned with a wall/trap, follow it, avoiding walls and traps in front.
+        // We're beside a wall/trap, follow it, avoiding walls and traps in front.
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
-        target.add(sensor.getFurtherPointInDirection(sensor.getOrientation()));
+        if (!sensor.isFollowingWall()) {
+            // We're beside a wall, but not aligned with it.
+            // Say that we need to turn left.
+            Coordinate closestToSide = sensor.getClosestTileInDirectionOfType(WorldSpatial.RelativeDirection.LEFT, tileTypesToTarget);
+            if (closestToSide == null) {
+                // Turning left would crash us into a wall/trap, turn right instead.
+                closestToSide = sensor.getClosestTileInDirectionOfType(WorldSpatial.RelativeDirection.RIGHT, tileTypesToTarget);
+            }
+            target.add(closestToSide);
+        } else {
+            // We're aligned with the wall beside us, just go in the direction we're facing.
+            target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
+        }
+        System.out.println(target);
         return target;
         // TODO deal with avoiding obstacles.
     }
