@@ -20,22 +20,6 @@ public class Sensor {
     private WorldSpatial.Direction orientation;
     private HashMap<Coordinate, MapTile> currentView;
 
-    private static Map<WorldSpatial.Direction,int[]> modmap = new HashMap<WorldSpatial.Direction,int[]>() {{
-        put(WorldSpatial.Direction.EAST, new int[] {1, 0});
-        put(WorldSpatial.Direction.NORTH, new int[] {0, 1});
-        put(WorldSpatial.Direction.WEST, new int[] {-1, 0});
-        put(WorldSpatial.Direction.SOUTH, new int[] {0, -1});
-    }};
-
-    // TODO put this in WorldSpatial. Also this should maybe be called leftOf.
-    private static Map<WorldSpatial.Direction,WorldSpatial.Direction> isLeftOf
-            = new HashMap<WorldSpatial.Direction,WorldSpatial.Direction>() {{
-        put(WorldSpatial.Direction.EAST, WorldSpatial.Direction.NORTH);
-        put(WorldSpatial.Direction.NORTH, WorldSpatial.Direction.WEST);
-        put(WorldSpatial.Direction.WEST, WorldSpatial.Direction.SOUTH);
-        put(WorldSpatial.Direction.SOUTH, WorldSpatial.Direction.EAST);
-    }};
-
 
     public Sensor(MyAIController controller) {
 
@@ -74,7 +58,7 @@ public class Sensor {
     // TODO, I think this should just return the HashMap<Coordinate, MapTile> that we're used to.
     private LinkedList<MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         LinkedList<MapTile> tiles = new LinkedList<MapTile>();
-        int[] mod = modmap.get(orientation);
+        int[] mod = WorldSpatial.modMap.get(orientation);
         for (int i = 0; i <= VISION_AHEAD; i++) {
             tiles.add(currentView.get(new Coordinate(currentPosition.x + (i * mod[0]),
                     currentPosition.y + (i * mod[1]))));
@@ -85,11 +69,11 @@ public class Sensor {
     public HashMap<Coordinate,MapTile> getTilesInDirection(WorldSpatial.RelativeDirection direction) {
         HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
         // Get the direction to the left.
-        int[] mod  = modmap.get(isLeftOf.get(orientation));
+        int[] mod  = WorldSpatial.modMap.get(WorldSpatial.leftOf.get(orientation));
         if (direction == WorldSpatial.RelativeDirection.RIGHT) {
             // If we needed the right, just go counterclockwise twice more.
-            mod = modmap.get(isLeftOf.get(orientation));
-            mod = modmap.get(isLeftOf.get(orientation));
+            mod = WorldSpatial.modMap.get(WorldSpatial.leftOf.get(orientation));
+            mod = WorldSpatial.modMap.get(WorldSpatial.leftOf.get(orientation));
         }
         for (int i = 1; i <= VISION_AHEAD; i++) {
             Coordinate toCheck = new Coordinate(currentPosition.x + (i * mod[0]), currentPosition.y + (i * mod[1]));
@@ -123,7 +107,7 @@ public class Sensor {
      * @return boolean true if the wall is on the car's LHS
      */
     public boolean isFollowingWall() {
-        return isTileAhead(isLeftOf.get(orientation), MapTile.Type.WALL);
+        return isTileAhead(WorldSpatial.leftOf.get(orientation), MapTile.Type.WALL);
     }
     
     public boolean isBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
@@ -197,8 +181,8 @@ public class Sensor {
     }
     
     public Coordinate getFurthestPointInDirection(WorldSpatial.Direction direction) {
-        int newX = currentPosition.x + modmap.get(direction)[0] * VISION_AHEAD;
-        int newY = currentPosition.y + modmap.get(direction)[1] * VISION_AHEAD;
+        int newX = currentPosition.x + WorldSpatial.modMap.get(direction)[0] * VISION_AHEAD;
+        int newY = currentPosition.y + WorldSpatial.modMap.get(direction)[1] * VISION_AHEAD;
         return new Coordinate(newX, newY);
     }
 
