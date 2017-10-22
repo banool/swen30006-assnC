@@ -58,3 +58,7 @@ local.properties
 *.class
 
 core/build/
+
+*.bin
+
+*.lock
