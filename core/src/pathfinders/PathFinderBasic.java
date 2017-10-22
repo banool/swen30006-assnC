@@ -14,7 +14,9 @@ import world.WorldSpatial;
  * differences being the end condition and what to push onto the stack. Lots of
  * the wall following related behaviour is encapsulated here.
  * 
- * @author Hao Le, Daniel Porteous, David Stern 2017-10-22. Group 17.
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
  */
 public abstract class PathFinderBasic implements IPathFinder {
 

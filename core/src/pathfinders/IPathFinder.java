@@ -8,8 +8,10 @@ import utilities.Coordinate;
  * This interface defines the two most important common method signatures
  * for a PathFinder, namely an update method and a way to tell if the
  * PathFinder is done. All PathFinders should implement this interface.
- * @author daniel
- *
+ * 
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
  */
 public interface IPathFinder {
 

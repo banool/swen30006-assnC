@@ -19,7 +19,9 @@ import world.WorldSpatial;
  * gets back to where it started, upon which it gets popped off the stack and
  * the PathFinderEscape on the top of takes over.
  * 
- * @author Hao Le, Daniel Porteous, David Stern 2017-10-22. Group 17.
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
  */
 public class PathFinderExplore extends PathFinderBasic {
 

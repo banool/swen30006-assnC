@@ -19,7 +19,9 @@ import world.WorldSpatial;
  * section. Once this PathFinder gets adjacent to the trap section, its job is
  * done.
  * 
- * @author Hao Le, Daniel Porteous, David Stern 2017-10-22. Group 17.
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
  */
 public class PathFinderEscape extends PathFinderBasic {
 
