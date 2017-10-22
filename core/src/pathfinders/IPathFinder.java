@@ -19,6 +19,7 @@ public interface IPathFinder {
      * In the provided design class diagram, this method took a SensorData. 
      * Now we just pass a reference to the Sensor to each PathFinder's 
      * constructor so this is no longer necessary.
+     * @return The list of Coordinates that we want the car to follow.
      */
     public ArrayList<Coordinate> update();
 
