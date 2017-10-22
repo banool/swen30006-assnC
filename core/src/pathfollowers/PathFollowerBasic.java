@@ -39,6 +39,8 @@ public class PathFollowerBasic implements IPathFollower {
         // Otherwise, proceed
         else {
             coord = coordsToFollow.get(0);
+            System.out.println("Coordinate given = (" + coord.x + ", " + coord.y + ").");
+            System.out.println("Coordinate of car = (" + sensor.getPosition().x + ", " + sensor.getPosition().y + ").");
 
             // Get Degree of Coordinate
             float tarDegree = (float) getDegreeOfCoord(coord);
@@ -73,7 +75,11 @@ public class PathFollowerBasic implements IPathFollower {
                         PeekTuple approxDest = controller.peek(testSpeeds[speed], tarDegree, testDirections[direction],
                                 delta);
                         Coordinate approxCoord = approxDest.getCoordinate();
-                        if (approxDest.getReachable() && coord.distanceFrom(approxCoord) < minDist) {
+                        float projectedDistanceFromTarget = coord.distanceFrom(approxCoord);
+                        System.out.println("----\nProjected Distance: " + projectedDistanceFromTarget);
+                        System.out.println("Direction = " + testDirections[direction] + ". Speed = " +
+                                testSpeeds[speed].len() + "----\n");
+                        if (approxDest.getReachable() && projectedDistanceFromTarget < minDist) {
                             minDist = coord.distanceFrom(approxCoord);
                             bestDirection = testDirections[direction];
                             bestVelocity = testSpeeds[speed].len();
@@ -91,23 +97,30 @@ public class PathFollowerBasic implements IPathFollower {
     private void moveCar(float currentVelocity, float desiredVelocity, float delta,
                          WorldSpatial.RelativeDirection bestDirection) {
         if (currentVelocity < desiredVelocity) {
+            System.out.println("Applying Forward Acceleration");
             controller.applyForwardAcceleration();
         } else {
+            System.out.println("Applying Reverse Acceleration");
             controller.applyReverseAcceleration();
         }
         if (bestDirection == WorldSpatial.RelativeDirection.RIGHT) {
+            System.out.println("Turning Right");
             controller.turnRight(delta);
         } else {
+            System.out.println("Turning Left");
             controller.turnLeft(delta);
         }
     }
 
 
     private Vector2[] getTestSpeeds(Vector2 currVelocity) {
-        Vector2[] testSpeeds = {new Vector2(currVelocity.x * (float) 0.9, currVelocity.y * (float) 0.9),
-                new Vector2(currVelocity.x * (float) 0.95, currVelocity.y * (float) 0.95),
-                new Vector2(currVelocity.x * (float) 1.05, currVelocity.y * (float) 1.05),
-                new Vector2(currVelocity.x * (float) 1.1, currVelocity.y * (float) 1.1)};
+        float addedX = (Double.compare(currVelocity.x, 0.0) == 0 ?  (float) .001 : 0 );
+        float addedY = (Double.compare(currVelocity.y, 0.0) == 0 ?  (float) .001 : 0 );
+        Vector2[] testSpeeds = {
+                new Vector2(currVelocity.x * (float) 1.1 + addedX, currVelocity.y * (float) 1.1 + addedY),
+                new Vector2(currVelocity.x * (float) 1.05 + addedX, currVelocity.y * (float) 1.05 + addedY),
+                new Vector2(currVelocity.x * (float) 0.95 + addedX, currVelocity.y * (float) 0.95 + addedY),
+                new Vector2(currVelocity.x * (float) 0.9 + addedX, currVelocity.y * (float) 0.9 + addedY)};
 
         return testSpeeds;
     }
