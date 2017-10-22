@@ -1,4 +1,4 @@
-SUBMISSION_FOLDER_NAME="other/submission_bundle"
+SUBMISSION_FOLDER_NAME="other/implementation_submission_bundle"
 
 mkdir -p $SUBMISSION_FOLDER_NAME
 cp -r core/src/mycontroller $SUBMISSION_FOLDER_NAME
