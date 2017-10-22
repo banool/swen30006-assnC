@@ -23,24 +23,41 @@ public class MyAIController extends CarController {
 
     private ArrayList<Coordinate> coordsToFollow;
 
+    /**
+     * Custom AI controller that encompasses and handles the logic of the car.
+     * @param car The car which we are controlling.
+     */
     public MyAIController(Car car) {
         super(car);
         sensor = new Sensor(this);
-        // TODO comment, empty stack at the start.
+
+        /* This stack starts off empty at the start. This stack is responsible for handling, remembering and changing
+         * the states of the AI's behaviour. It'll go through either an Explore, Escape, Trap Traversal (including the
+         * specific traps) path finder strategy.
+         */
         pathFinderStack = new Stack<IPathFinder>();
-        // TODO comment set the starting pathfinder to Explore.
-        // Something about defaults, maybe this could be more configurable.
-        // Probably not something we have to worry about though.
+
+        /* The first pathfinder strategy is Explore */
         activePathFinder = new PathFinderExplore(pathFinderStack, sensor);
         pathFollower = new PathFollowerBasic(this, sensor);
     }
 
-    // TODO comment this heavily
+    /**
+     * MyAIController.update() is responsible for continuously reading in sensor information and updating the pathfinder
+     * strategies in the stack when possible.
+     * @param delta
+     */
     public void update(float delta) {
         sensor.update();
+
+        /* Once the current pathfinder strategy has been completed, it is popped off from the stack for the next one
+         * to be handled.
+         */
         if (activePathFinder.isDone()) {
             activePathFinder = pathFinderStack.pop();
         }
+
+        /* Move onto the next pathfinder (Explore, Escape, TrapTraverse) strategy */
         coordsToFollow = activePathFinder.update();
         pathFollower.update(delta, coordsToFollow);
     }
