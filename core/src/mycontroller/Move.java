@@ -4,7 +4,7 @@ import utilities.Coordinate;
 import utilities.DirectionUtils;
 
 public class Move {
-
+    
     public enum SpeedChange {SLOWDOWN, MAINTAIN, ACCELERATE}
 
     private final Coordinate carCoordinate;
@@ -26,6 +26,7 @@ public class Move {
     public boolean equals(Object obj) {
         if (obj instanceof Move) {
             Move otherMove = (Move) obj;
+            // Once move is only equal to another if all of the attributes are the same.
             return (this.carCoordinate.equals(otherMove.carCoordinate) &&
                     this.targetCoordinate.equals(otherMove.targetCoordinate) &&
                     Float.compare(this.degree, otherMove.degree) == 0 &&
