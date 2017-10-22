@@ -11,6 +11,13 @@ import pathfollowers.PathFollowerBasic;
 import utilities.Coordinate;
 import world.Car;
 
+/**
+ * This class is the main driver for the current implementation of the car AI.
+ * 
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public class MyAIController extends CarController {
 
     private final float CAR_SPEED = 3;

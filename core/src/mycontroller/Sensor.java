@@ -15,6 +15,14 @@ import tiles.MapTile;
 import world.WorldSpatial;
 import utilities.Coordinate;
 
+/**
+ * This class is soley responsible for handling how the car and AI reads its
+ * surroundings and its current status (direction, velocity, health).
+ * 
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public class Sensor {
 
     public final Integer VISION_AHEAD = 3;
