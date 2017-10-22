@@ -105,18 +105,36 @@ public class Sensor {
         return getClosestTileInDirectionOfTypes(WorldSpatial.getLeftOf(orientation), tileTypes) != null;
     }
     
+    /**
+     * Interface into isDirectlyBesideTileOfTypes that checks for all sides (forward, left, right, back).
+     * @param tileTypes
+     * @return
+     */
     public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
-        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y)).getType())) {
-            return true;
+        return isDirectlyBesideTileOfTypes(tileTypes, null);
+    }
+    
+    public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes, WorldSpatial.RelativeDirection direction) {
+        int[] modMap = WorldSpatial.modMap.get(WorldSpatial.getToSideOf(orientation, direction));
+        if (direction == null || modMap[0] == 1) {
+            if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y)).getType())) {
+                return true;
+            }
         }
-        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x-1, currentPosition.y)).getType())) {
-            return true;
+        if (direction == null || modMap[0] == -1) {
+            if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x-1, currentPosition.y)).getType())) {
+                return true;
+            }
         }
-        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x, currentPosition.y+1)).getType())) {
-            return true;
+        if (direction == null || modMap[1] == 1) {
+            if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x, currentPosition.y+1)).getType())) {
+                return true;
+            }
         }
-        if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x, currentPosition.y-1)).getType())) {
-            return true;
+        if (direction == null || modMap[1] == -1) {
+            if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x, currentPosition.y-1)).getType())) {
+                return true;
+            }
         }
         return false;
     }
