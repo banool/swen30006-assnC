@@ -61,7 +61,7 @@ public class Simulation extends ApplicationAdapter implements InputProcessor {
         // mapName = "easy-map-traps.tmx";
         // mapName = "lecture-preview.tmx";
         // mapName = "lecture-preview2.tmx";
-        mapName = "big-map-different.tmx";
+        // mapName = "big-map-different.tmx";
         if (null == mapName) mapName = "big-map.tmx";  // TODO revert this
         map = new TmxMapLoader().load(mapName);
 
