@@ -35,6 +35,10 @@ public class Move {
         return false;
     }
 
+    /**
+     * getOppositeMove returns a Move representing the opposite move to the calling move.
+     * @return a Move object representing the opposite move to the calling move.
+     */
     public Move getOppositeMove() {
         SpeedChange oppositeSpeedChange = null;
         DirectionUtils.RelativeDirectionDU oppositeDirection = null;
@@ -54,12 +58,16 @@ public class Move {
     }
 
 
-
-
+    /**
+     * @return Return the SpeedChange of this instance of Move.
+     */
     public SpeedChange getSpeedChange() {
         return this.speedChange;
     }
 
+    /**
+     * @return Return the direction (DirectionUtils.RelativeDirectionDU) of this instance of Move.
+     */
     public DirectionUtils.RelativeDirectionDU getTurnDirection() {
         return this.turnDirection;
     }
