@@ -24,6 +24,7 @@ public class PathFinderExplore implements IPathFinder {
     private Sensor sensor;
 
     private Coordinate start;
+    private boolean hasLeftStart;
 
     public PathFinderExplore(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
         tileTypesToAvoid = new ArrayList<MapTile.Type>();
@@ -33,8 +34,9 @@ public class PathFinderExplore implements IPathFinder {
         tileTypesToTarget.add(MapTile.Type.ROAD);
         
         this.sensor = sensor;
-        start = sensor.getPosition();
+        this.start = sensor.getPosition();
         this.pathFinderStack = pathFinderStack;
+        this.hasLeftStart = false;
         
         this.trapSections = new ArrayList<HashMap<Coordinate, TrapTile>>();
         this.currentTrapSection = new HashMap<Coordinate, TrapTile>();
@@ -43,6 +45,10 @@ public class PathFinderExplore implements IPathFinder {
     @Override
     public ArrayList<Coordinate> update() {
         trackTraps();
+        // TODO comment on why we need this "hasLeftStart" thing.
+        if (!hasLeftStart && !start.equals(sensor.getPosition())) {
+            hasLeftStart = true;
+        }
         if (!sensor.isDirectlyBesideTileOfTypes(tileTypesToAvoid, WorldSpatial.RelativeDirection.LEFT)) {
             System.out.println("Getting adjacent to wall/trap");
             return getToWallTrap();
@@ -55,10 +61,17 @@ public class PathFinderExplore implements IPathFinder {
 
     private ArrayList<Coordinate> getToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
-        Coordinate wallCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
+        Coordinate wallCoordinate = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT,
+                tileTypesToTarget);
         Coordinate targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(wallCoordinate, tileTypesToTarget);
         if (targetCoordinate != null) {
-            if (targetCoordinate)
+            System.out.println("pre target " + targetCoordinate);
+            if (targetCoordinate.equals(sensor.getPosition())) {
+                // We stop at the target, so move the target forward.
+                int[] modMap = WorldSpatial.modMap.get(sensor.getOrientation());
+                targetCoordinate = new Coordinate(targetCoordinate.x + modMap[0]*sensor.getVisionAhead(), targetCoordinate.y + modMap[1]*sensor.getVisionAhead());
+                targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(targetCoordinate, tileTypesToTarget);
+            }
             target.add(targetCoordinate);
         } else {
             // If we get here it means that there is no wall within range.
@@ -91,7 +104,9 @@ public class PathFinderExplore implements IPathFinder {
                 // There's no wall/trap in front in vision, just gun it forward.
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
             } else {
-                target.add(getToRightOfUpcomingWall(wallInFront));
+                Coordinate blah = getToRightOfUpcomingWall(wallInFront);
+                System.out.println("Getting to the right of upcoming wall");
+                target.add(blah);
             }
         }
         return target;
@@ -142,7 +157,7 @@ public class PathFinderExplore implements IPathFinder {
      * Each escape pathfinder takes the appropriate trap section as a constructor argument.
      */
     public boolean isDone() {
-        boolean done = (start.equals(sensor.getPosition()));
+        boolean done = start.equals(sensor.getPosition()) && hasLeftStart;
         if (done) {
             for (HashMap<Coordinate, TrapTile> trapSection : trapSections) {
                 pathFinderStack.push(new PathFinderEscape(pathFinderStack, sensor, trapSection));
