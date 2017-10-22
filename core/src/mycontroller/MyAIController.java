@@ -15,11 +15,10 @@ public class MyAIController extends CarController {
 
     private final float CAR_SPEED = 3;
 
-    /* TODO Comment this! */
-    private Sensor sensor;
-    private Stack<IPathFinder> pathFinderStack;
-    private IPathFinder activePathFinder;
-    private IPathFollower pathFollower;
+    private Sensor sensor;                          // the sensor reading in the environment around the car
+    private Stack<IPathFinder> pathFinderStack;     // responsible for handling the strategies/behaviour of the AI
+    private IPathFinder activePathFinder;           // the AI's current traversal strategy/behaviour
+    private IPathFollower pathFollower;             // coordinates the AI has to move towards
 
     private ArrayList<Coordinate> coordsToFollow;
 
