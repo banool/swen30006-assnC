@@ -58,6 +58,12 @@ public class PathFinderExplore implements IPathFinder {
         }
         // Comment about how we just generate one point and chuck it in the array. TODO
     }
+    
+    private ArrayList<Coordinate> getToUninterruptibleTarget() {
+        ArrayList<Coordinate> target = new ArrayList<Coordinate>();
+        target.add(this.uninterruptibleTarget);
+        return target;
+    }
 
     private ArrayList<Coordinate> getToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
@@ -104,9 +110,9 @@ public class PathFinderExplore implements IPathFinder {
                 // There's no wall/trap in front in vision, just gun it forward.
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
             } else {
-                Coordinate blah = getToRightOfUpcomingWall(wallInFront);
                 System.out.println("Getting to the right of upcoming wall");
-                target.add(blah);
+                Coordinate rightTarget = getToRightOfUpcomingWall(wallInFront);
+                target.add(rightTarget);
             }
         }
         return target;
@@ -114,13 +120,14 @@ public class PathFinderExplore implements IPathFinder {
     
     public Coordinate getToRightOfUpcomingWall(Coordinate wallInFront) {
         // For now just use the point beside the upcoming wall so we slow down.
+        System.out.println("wall in front: " + wallInFront);
         Coordinate roadNearWall = sensor.getNearestTileOfTypesNearCoordinate(wallInFront, tileTypesToTarget);
         // Using this point, check to the right of it for free road tiles to go to.
         Coordinate rightOfRoadNearWall = roadNearWall;
-        for (int i = 1; i <= sensor.getVisionAhead(); i++) {
+        for (int i = 0; i <= sensor.getVisionAhead(); i++) {
             int[] rightModMap = WorldSpatial.modMap.get(WorldSpatial.getRightOf(sensor.getOrientation()));
-            Coordinate candidate = new Coordinate(sensor.getPosition().x + (i * rightModMap[0]),
-                    sensor.getPosition().y + (i * rightModMap[1]));
+            Coordinate candidate = new Coordinate(roadNearWall.x + (i * rightModMap[0]),
+                    roadNearWall.y + (i * rightModMap[1]));
             // If the coordinate to the right of the point near the wall is a road, set the
             // destination to that point.
             if (tileTypesToTarget.contains(sensor.getCurrentView().get(candidate).getType())) {
