@@ -25,6 +25,8 @@ public class PathFinderExplore implements IPathFinder {
 
     private Coordinate start;
     private boolean hasLeftStart;
+    private Coordinate uninterruptibleTarget;
+    private boolean doNotInterrupt;
 
     public PathFinderExplore(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
         tileTypesToAvoid = new ArrayList<MapTile.Type>();
@@ -40,6 +42,7 @@ public class PathFinderExplore implements IPathFinder {
         
         this.trapSections = new ArrayList<HashMap<Coordinate, TrapTile>>();
         this.currentTrapSection = new HashMap<Coordinate, TrapTile>();
+        this.doNotInterrupt = false;
     }
 
     @Override
@@ -49,6 +52,13 @@ public class PathFinderExplore implements IPathFinder {
         if (!hasLeftStart && !start.equals(sensor.getPosition())) {
             hasLeftStart = true;
         }
+        if (doNotInterrupt) {
+            if (sensor.getPosition().equals(this.uninterruptibleTarget)) {
+                this.doNotInterrupt = false;
+            } else {
+                return getToUninterruptibleTarget();
+            }
+        }
         if (!sensor.isDirectlyBesideTileOfTypes(tileTypesToAvoid, WorldSpatial.RelativeDirection.LEFT)) {
             System.out.println("Getting adjacent to wall/trap");
             return getToWallTrap();
@@ -57,6 +67,12 @@ public class PathFinderExplore implements IPathFinder {
             return followWallTrap();
         }
         // Comment about how we just generate one point and chuck it in the array. TODO
+    }
+    
+    private ArrayList<Coordinate> getToUninterruptibleTarget() {
+        ArrayList<Coordinate> target = new ArrayList<Coordinate>();
+        target.add(this.uninterruptibleTarget);
+        return target;
     }
 
     private ArrayList<Coordinate> getToWallTrap() {
@@ -106,6 +122,8 @@ public class PathFinderExplore implements IPathFinder {
             } else {
                 System.out.println("Getting to the right of upcoming wall");
                 Coordinate rightTarget = getToRightOfUpcomingWall(wallInFront);
+                this.doNotInterrupt = true;
+                this.uninterruptibleTarget = rightTarget;
                 target.add(rightTarget);
             }
         }

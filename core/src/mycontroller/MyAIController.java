@@ -58,6 +58,7 @@ public class MyAIController extends CarController {
 
         /* Move onto the next pathfinder (Explore, Escape, TrapTraverse) strategy */
         coordsToFollow = activePathFinder.update();
+        if (coordsToFollow.get(0).equals(sensor.getPosition())) System.out.println("SAME");
         pathFollower.update(delta, coordsToFollow);
     }
 
