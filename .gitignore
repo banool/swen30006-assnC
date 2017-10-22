@@ -52,3 +52,9 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+\.gradle/
+
+*.class
+
+core/build/
