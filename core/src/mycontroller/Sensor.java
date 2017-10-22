@@ -20,6 +20,7 @@ public class Sensor {
     private HashMap<Coordinate, MapTile> currentView;
     private double velocity;
     private Vector2 velocity2;
+    private int health;
 
 
     public Sensor(MyAIController controller) {
@@ -33,6 +34,7 @@ public class Sensor {
         this.orientation = controller.getOrientation();
         this.velocity = (double) controller.getSpeed();
         this.velocity2 = controller.getVelocity();
+        this.health = controller.getHealth();
     }
     
     /* TODO comment about what this section of methods are for maybe. */
@@ -235,6 +237,7 @@ public class Sensor {
         return this.velocity2;
     }
 
-
-
+    public int getHealth() {
+        return health;
+    }
 }

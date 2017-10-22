@@ -35,7 +35,6 @@ public class Simulation extends ApplicationAdapter implements InputProcessor {
 
     private enum CameraMode {WORLD, PLAYER}
 
-    ;
     private static CameraMode CAMERA_MODE = CameraMode.WORLD;
     private static final int PLAYER_VIEW = 11;
     private static boolean gameEnded = false;

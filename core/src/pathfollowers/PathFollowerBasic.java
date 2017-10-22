@@ -2,9 +2,11 @@ package pathfollowers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.badlogic.gdx.math.Vector2;
+import mycontroller.Move;
 import mycontroller.MyAIController;
 import mycontroller.Sensor;
 import utilities.Coordinate;
@@ -13,19 +15,27 @@ import world.WorldSpatial;
 
 public class PathFollowerBasic implements IPathFollower {
 
-    private enum SpeedChange {SLOWDOWN, MAINTAIN, ACCELERATE}
 
     private MyAIController controller;
     private Sensor sensor;
     private final Double MAX_SPEED = 2.0;
     private final Double TURN_SPEED = 1.5;
-    private SpeedChange desiredSpeedChange;
+    private Move.SpeedChange desiredSpeedChange;
+    private LinkedList<Move> previousMoves;
+    private Boolean escaping;
+    private Integer durationOfEscapeMove;
+    private final Integer TRACKED_MOVES = 30;
+    private final Integer CORRECTING_MOVES = 15;
+    private Integer lastHealth;
+    private Move escapeMove;
 
     public PathFollowerBasic(MyAIController controller, Sensor sensor) {
         this.controller = controller;
         this.sensor = sensor;
+        previousMoves = new LinkedList<Move>();
+        lastHealth = sensor.getHealth();
+        escaping = false;
     }
-
 
     // Note: PathFinder is the collision-avoidance guide, we don't need to do that here.
     @Override
@@ -39,60 +49,147 @@ public class PathFollowerBasic implements IPathFollower {
         // Otherwise, proceed
         else {
             coord = coordsToFollow.get(0);
-            System.out.println("Coordinate given = (" + coord.x + ", " + coord.y + ").");
-            System.out.println("Coordinate of car = (" + sensor.getPosition().x + ", " + sensor.getPosition().y + ").");
-
-            // Get Degree of Coordinate
             float tarDegree = (float) getDegreeOfCoord(coord);
 
-            // Get Relative Direction of the Coordinate
+            System.out.println("Coordinate given = (" + coord.x + ", " + coord.y + ").");
+            System.out.println("Coordinate of car = (" + sensor.getPosition().x + ", " + sensor.getPosition().y + ").");
+            System.out.println("Direction Facing = " + sensor.getOrientation());
+            System.out.println("Angle of Car = " + sensor.getAngle());
+
+            // Remove out-dated moves
+            if (previousMoves.size() > TRACKED_MOVES) { previousMoves.poll(); }
+            // Alternate Update Method if escaping
+            if (escaping) {
+                updateEscape(delta, coord, tarDegree);
+                return;
+            }
+
+            // If directed to do so, go straight
             WorldSpatial.RelativeDirection tarDirection = getDirection(tarDegree);
-
-            // Get desired change in speed
-            desiredSpeedChange = adjustVelocity(coord);
-
-            // If degree of coordinate is same as degree of car, go straight forward or straight backward
             if (tarDirection == WorldSpatial.RelativeDirection.FORWARD ||
                     tarDirection == WorldSpatial.RelativeDirection.BACKWARD) {
-                goForwardOrBackward(tarDirection, desiredSpeedChange);
+                goForwardOrBackward(tarDirection, adjustVelocity(coord));
             }
 
             else {
                 // Generate All combinations of acceleration, reverse acceleration, Left and Right turns
                 Vector2 currVelocity = sensor.getVelocity2();
                 Vector2[] testSpeeds = getTestSpeeds(currVelocity);
+                Move.SpeedChange[] speedChanges = getSpeedChanges(testSpeeds, currVelocity);
                 WorldSpatial.RelativeDirection[] testDirections = {WorldSpatial.RelativeDirection.LEFT,
                         WorldSpatial.RelativeDirection.RIGHT};
 
-                // Find the best direction and change in velocity to reach the destination
+                // Find the best direction and the index of the best change in velocity to reach the destination
                 WorldSpatial.RelativeDirection bestDirection = null;
-                float bestVelocity = currVelocity.len();
+                int bestSpeedInd = 0;
                 float minDist = Float.MAX_VALUE;
                 for (int speed = 0; speed < 3; speed++) {
-                    for (int direction = 0; direction < 2; direction++) {
+                    for (int d = 0; d < 2; d++) {
 
                         // Use controller.peek(...) to determine best combination to reach target coordinate
-                        PeekTuple approxDest = controller.peek(testSpeeds[speed], tarDegree, testDirections[direction],
-                                delta);
+                        PeekTuple approxDest = controller.peek(testSpeeds[speed], tarDegree, testDirections[d], delta);
                         Coordinate approxCoord = approxDest.getCoordinate();
                         float projectedDistanceFromTarget = coord.distanceFrom(approxCoord);
                         System.out.println("----\nProjected Distance: " + projectedDistanceFromTarget);
-                        System.out.println("Direction = " + testDirections[direction] + ". Speed = " +
-                                testSpeeds[speed].len() + "----\n");
+                        System.out.println("Direction = " + testDirections[d] + ". Speed = " + testSpeeds[speed].len() + "----\n");
                         if (approxDest.getReachable() && projectedDistanceFromTarget < minDist) {
                             minDist = coord.distanceFrom(approxCoord);
-                            bestDirection = testDirections[direction];
-                            bestVelocity = testSpeeds[speed].len();
+                            bestDirection = testDirections[d];
+                            bestSpeedInd = speed;
                         }
                     }
                 }
-                // Direct Controller in the direction and velocity that will take the car closest to the desired
-                // destination
-                moveCar(currVelocity.len(), bestVelocity, delta, bestDirection);
+                moveCar(currVelocity.len(), testSpeeds[bestSpeedInd].len(), delta, bestDirection);
+
+                // Update Queue of Last Moves
+                previousMoves.offer(new Move(sensor.getPosition(), coord, sensor.getAngle(), speedChanges[bestSpeedInd],
+                        bestDirection));
             }
         }
     }
 
+    private void updateEscape(float delta, Coordinate coord, float tarDegree) {
+
+        // If we're escaping and reach a point where all of the previous moves were the same, only move forward!
+        if (escaping && allSame(previousMoves)) {
+            moveOnlyForward(escapeMove, delta, coord);
+            return;
+        }
+
+        // Stop escaping once we are facing our goal
+        if (tarDegree == sensor.getAngle()) {
+            escaping = false;
+            escapeMove = null;
+        }
+
+
+        // If the last few moves were all the same, start making moves to correct our course.
+        if (allSame(previousMoves) && sensor.getHealth() < lastHealth && previousMoves.size() > 0) {
+            escaping = true;
+            escapeMove = previousMoves.peek().getOppositeMove();
+        }
+
+        // Initial and after-initial escape moves
+        if (escaping) {
+            System.out.println("Escaping!");
+            moveCar(escapeMove, delta, coord);
+        }
+    }
+
+
+
+    private Boolean allSame(LinkedList<Move> previousMoves) {
+        LinkedList<Move> moves = new LinkedList<Move>(previousMoves);
+        Move lastMove = moves.poll();
+        Move thisMove;
+        do {
+            thisMove = moves.poll();
+            if (thisMove == null || lastMove == null || !lastMove.equals(thisMove)) {
+                return false;
+            }
+        } while (!moves.isEmpty());
+        return true;
+    }
+
+    private void moveOnlyForward(Move move, float delta, Coordinate targetCoord) {
+        Move.SpeedChange speedChange;
+        WorldSpatial.RelativeDirection direction = WorldSpatial.RelativeDirection.FORWARD;
+        if (escapeMove.getSpeedChange() == Move.SpeedChange.ACCELERATE) {
+            controller.applyForwardAcceleration();
+            speedChange =  Move.SpeedChange.ACCELERATE;
+        }
+        else {
+            controller.applyReverseAcceleration();
+            speedChange =  Move.SpeedChange.SLOWDOWN;
+        }
+        lastHealth = sensor.getHealth();
+        previousMoves.offer(new Move(sensor.getPosition(), targetCoord, sensor.getAngle(), speedChange, direction));
+    }
+
+
+    private void moveCar(Move escapeMove, float delta, Coordinate targetCoordinate ) {
+        Move.SpeedChange speedChange;
+        WorldSpatial.RelativeDirection direction;
+
+        if (escapeMove.getSpeedChange() == Move.SpeedChange.ACCELERATE) {
+            controller.applyForwardAcceleration();
+            speedChange =  Move.SpeedChange.ACCELERATE;
+        }
+        else {
+            controller.applyReverseAcceleration();
+            speedChange =  Move.SpeedChange.SLOWDOWN;
+        }
+        if (escapeMove.getTurnDirection() == WorldSpatial.RelativeDirection.RIGHT) {
+            controller.turnRight(delta);
+            direction = WorldSpatial.RelativeDirection.RIGHT;
+        }
+        else {
+            controller.turnLeft(delta);
+            direction = WorldSpatial.RelativeDirection.LEFT;
+        }
+        lastHealth = sensor.getHealth();
+        previousMoves.offer(new Move(sensor.getPosition(), targetCoordinate, sensor.getAngle(), speedChange, direction));
+    }
 
     private void moveCar(float currentVelocity, float desiredVelocity, float delta,
                          WorldSpatial.RelativeDirection bestDirection) {
@@ -110,6 +207,7 @@ public class PathFollowerBasic implements IPathFollower {
             System.out.println("Turning Left");
             controller.turnLeft(delta);
         }
+        lastHealth = sensor.getHealth();
     }
 
 
@@ -125,38 +223,55 @@ public class PathFollowerBasic implements IPathFollower {
         return testSpeeds;
     }
 
+    private Move.SpeedChange[] getSpeedChanges(Vector2[] testSpeeds, Vector2 currVelocity) {
 
-    private void goForwardOrBackward(WorldSpatial.RelativeDirection d, SpeedChange speedChange) {
-        if (d == WorldSpatial.RelativeDirection.FORWARD) {
-            if (speedChange == SpeedChange.ACCELERATE) {
-                controller.applyForwardAcceleration();
-            } else if (speedChange == SpeedChange.SLOWDOWN) {
-                controller.applyReverseAcceleration();
+        float currentSpeed = currVelocity.len();
+        Move.SpeedChange[] speedChanges = new Move.SpeedChange[testSpeeds.length];
+        for (int i = 0; i < testSpeeds.length; i++) {
+            if (testSpeeds[i].len() < currentSpeed) {
+                speedChanges[i] = Move.SpeedChange.SLOWDOWN;
             }
-        } else if (d == WorldSpatial.RelativeDirection.BACKWARD) {
-            if (speedChange == SpeedChange.ACCELERATE) {
-                controller.applyReverseAcceleration();
-            } else if (speedChange == SpeedChange.SLOWDOWN) {
-                controller.applyForwardAcceleration();
+            else {
+                speedChanges[i] = Move.SpeedChange.ACCELERATE;
             }
         }
+        return speedChanges;
     }
 
 
-    private SpeedChange adjustVelocity(Coordinate coordinate) {
+
+    private void goForwardOrBackward(WorldSpatial.RelativeDirection d, Move.SpeedChange speedChange) {
+        if (d == WorldSpatial.RelativeDirection.FORWARD) {
+            if (speedChange == Move.SpeedChange.ACCELERATE) {
+                controller.applyForwardAcceleration();
+            } else if (speedChange == Move.SpeedChange.SLOWDOWN) {
+                controller.applyReverseAcceleration();
+            }
+        } else if (d == WorldSpatial.RelativeDirection.BACKWARD) {
+            if (speedChange == Move.SpeedChange.ACCELERATE) {
+                controller.applyReverseAcceleration();
+            } else if (speedChange == Move.SpeedChange.SLOWDOWN) {
+                controller.applyForwardAcceleration();
+            }
+        }
+        lastHealth = sensor.getHealth();
+    }
+
+
+    private Move.SpeedChange adjustVelocity(Coordinate coordinate) {
         Coordinate carPosition = sensor.getPosition();
         // If the PathFinder is telling us to slow down, or if we're above the max speed, slow down!
         if (coordinate.distanceFrom(carPosition) <= sensor.VISION_AHEAD / 3 || sensor.getVelocity() > MAX_SPEED) {
-            return SpeedChange.SLOWDOWN;
+            return Move.SpeedChange.SLOWDOWN;
         }
         // If the PathFinder is happy with our acceleration, or we're at max speed, maintain current speed
         else if (coordinate.distanceFrom(carPosition) < sensor.VISION_AHEAD || sensor.getVelocity() == MAX_SPEED) {
-            return SpeedChange.MAINTAIN;
+            return Move.SpeedChange.MAINTAIN;
         }
         // If the PathFinder is saying to go to the coordinate at or beyond the edge of our visual map & we're below
         // max speed, Accelerate!
         else {
-            return SpeedChange.ACCELERATE;
+            return Move.SpeedChange.ACCELERATE;
         }
     }
 
