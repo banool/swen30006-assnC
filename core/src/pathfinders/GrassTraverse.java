@@ -10,6 +10,9 @@ import mycontroller.Sensor;
 import tiles.TrapTile;
 
 /**
+ * Extends the abstract TrapTraverse class. Responsible for navigating over / through Grass traps, given
+ * that the car is already adjacent to a Grass trap section.
+ *
  * @author Hao Le, Daniel Porteous, David Stern
  * 2017-10-22.
  * Group 17.
