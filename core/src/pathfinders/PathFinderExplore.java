@@ -68,7 +68,6 @@ public class PathFinderExplore extends PathFinderBasic {
             hasLeftStart = true;
         }
         if (!sensor.isDirectlyBesideTileOfTypes(tileTypesToAvoid, WorldSpatial.RelativeDirection.LEFT)) {
-            System.out.println("Getting adjacent to wall/trap");
             return super.goToWallTrap();
         } else {
             // We're aligned with a wall, follow it until we come across an obstacle.
