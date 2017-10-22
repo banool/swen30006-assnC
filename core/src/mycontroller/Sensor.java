@@ -174,7 +174,7 @@ public class Sensor {
      * @param tileTypes
      * @return
      */
-    public Coordinate getNearestTileTypesNearCoordinate(Coordinate coordinate, ArrayList<MapTile.Type> tileTypes) {
+    public Coordinate getNearestTileOfTypesNearCoordinate(Coordinate coordinate, ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
         for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
             Coordinate key = entry.getKey();
