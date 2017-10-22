@@ -8,6 +8,14 @@ import world.WorldSpatial;
 import world.WorldSpatial.Direction;
 import world.WorldSpatial.RelativeDirection;
 
+/**
+ * This class provides functionality for dealing with orientations and moving
+ * between them, as well as other spatial concerns, like Coordinates.
+ * 
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public class DirectionUtils {
 
     /** An enum for forwards and backwards, since they weren't supplied. */
@@ -94,17 +102,20 @@ public class DirectionUtils {
             return orientation;
         }
     }
-    
+
     /**
      * Gets the euclidian distance between two Coordinates.
-     * @param c1 The first Coordinate
-     * @param c2 The second Coordinate
+     * 
+     * @param c1
+     *            The first Coordinate
+     * @param c2
+     *            The second Coordinate
      * @return The euclidian distance between two coordinates.
      */
     public static float distanceBetweenCoords(Coordinate c1, Coordinate c2) {
         float xDiff = Math.abs(c1.x - c2.x);
         float yDiff = Math.abs(c1.y - c2.y);
-        return (float) Math.sqrt(xDiff*xDiff + yDiff*yDiff);
+        return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
     }
 
 }
