@@ -3,6 +3,14 @@ package mycontroller;
 import utilities.Coordinate;
 import utilities.DirectionUtils;
 
+/**
+ * Added this class so that a history of previous moves can be kept, specifically for equality checking.
+ * Also so that we can retrieve the opposite Move for any given move.
+ *
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public class Move {
 
     public enum SpeedChange {SLOWDOWN, MAINTAIN, ACCELERATE}

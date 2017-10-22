@@ -9,6 +9,11 @@ import java.util.Stack;
 import mycontroller.Sensor;
 import tiles.TrapTile;
 
+/**
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public class MudTraverse extends TrapTraverse {
 
     private Sensor sensor;
