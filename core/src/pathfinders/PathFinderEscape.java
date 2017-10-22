@@ -1,19 +1,26 @@
 package pathfinders;
 
-import mycontroller.SensorData;
 import utilities.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Stack;
 
-public class PathFinderEscape implements IPathFinder {
+import mycontroller.Sensor;
 
-    public PathFinderEscape(Stack<IPathFinder> pathFinderStack) {
-        // TODO Auto-generated constructor stub
+public class PathFinderEscape implements IPathFinder {
+    
+    private Sensor sensor;
+    private Coordinate start;
+    private Stack<IPathFinder> pathFinderStack;
+
+    public PathFinderEscape(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
+        this.sensor = sensor;
+        start = sensor.getPosition();
+        this.pathFinderStack = pathFinderStack;
     }
 
     @Override
-    public ArrayList<Coordinate> update(SensorData sensorData) {
+    public ArrayList<Coordinate> update() {
         // TODO Auto-generated method stub
         return null;
     }

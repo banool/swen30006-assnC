@@ -1,26 +1,31 @@
 package pathfinders;
 
-import mycontroller.SensorData;
 import utilities.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Stack;
 
+import mycontroller.Sensor;
+
 public class LavaTraverse extends TrapTraverse {
 
-    public LavaTraverse(Stack<IPathFinder> pathFinderStack) {
-        // STUB
+    private Sensor sensor;
+    private Coordinate start;
+    private Stack<IPathFinder> pathFinderStack;
+
+    public LavaTraverse(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
+        this.sensor = sensor;
+        start = sensor.getPosition();
+        this.pathFinderStack = pathFinderStack;
     }
 
-    // to the stack so this IPathFinder can push a new IPathFinder onto the stack.
-    public ArrayList<Coordinate> update(SensorData sensorData) {
-
-        // METHOD STUB
-        return new ArrayList<Coordinate>();
+    @Override
+    public ArrayList<Coordinate> update() {
+        // TODO Auto-generated method stub
+        return null;
     }
-
+    
     public boolean isDone() {
-
         // METHOD STUB
         return true;
     }

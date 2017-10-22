@@ -2,7 +2,6 @@ package pathfinders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Stack;
 
 import mycontroller.Sensor;
@@ -15,7 +14,11 @@ public class PathFinderExplore implements IPathFinder {
 
     private final ArrayList<MapTile.Type> tileTypesToAvoid;
     private final ArrayList<MapTile.Type> tileTypesToTarget;
+    // A single trap section is a HashMap<Coordinate, TrapTile>. 
+    // We have multiple of these for each contiguous section of traps.
     private ArrayList<HashMap<Coordinate, TrapTile>> trapSections;
+    
+    private Stack<IPathFinder> pathFinderStack;
     private Sensor sensor;
 
     private Coordinate start;
@@ -29,6 +32,7 @@ public class PathFinderExplore implements IPathFinder {
         
         this.sensor = sensor;
         start = sensor.getPosition();
+        this.pathFinderStack = pathFinderStack;
     }
 
     @Override

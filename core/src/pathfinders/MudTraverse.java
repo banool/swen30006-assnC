@@ -1,6 +1,5 @@
 package pathfinders;
 
-import mycontroller.SensorData;
 import utilities.Coordinate;
 
 import java.util.ArrayList;
@@ -12,15 +11,13 @@ public class MudTraverse extends TrapTraverse {
         // STUB
     }
 
-    // to the stack so this IPathFinder can push a new IPathFinder onto the stack.
-    public ArrayList<Coordinate> update(SensorData sensorData) {
-
-        // METHOD STUB
-        return new ArrayList<Coordinate>();
+    @Override
+    public ArrayList<Coordinate> update() {
+        // TODO Auto-generated method stub
+        return null;
     }
-
+    
     public boolean isDone() {
-
         // METHOD STUB
         return true;
     }
