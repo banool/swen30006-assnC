@@ -1,3 +1,9 @@
+/**
+ * Changes had to be made to the implementation of Sensor most notably the attributes and methods.
+ * This was due to the realisation that what was originally planned in the design simply doesn't
+ * assist to achieve what is needed with the Sensor class.
+ */
+
 package mycontroller;
 
 import java.util.ArrayList;
@@ -21,7 +27,6 @@ public class Sensor {
     private double velocity;
     private Vector2 velocity2;
 
-
     public Sensor(MyAIController controller) {
         this.controller = controller;
     }
@@ -35,8 +40,15 @@ public class Sensor {
         this.velocity2 = controller.getVelocity();
     }
     
-    /* TODO comment about what this section of methods are for maybe. */
+    /*************************************************************************
+     * Methods for sensing the tiles around the car
+     *************************************************************************/
 
+    /**
+     * Gets the tiles directly in front of (orientation) of the vehicle
+     * @param orientation
+     * @return
+     */
     private HashMap<Coordinate, MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
         int[] mod = WorldSpatial.modMap.get(orientation);
@@ -80,7 +92,7 @@ public class Sensor {
                 }
             }
         }
-        return nearest;        
+        return nearest;
     }
     
     /**
@@ -159,7 +171,7 @@ public class Sensor {
                 }
             }
         }
-        return nearest;        
+        return nearest;
     }
     
     /**
@@ -182,7 +194,7 @@ public class Sensor {
                 }
             }
         }
-        return nearest;        
+        return nearest;
     }
     
     public Coordinate getFurthestPointInDirection(WorldSpatial.Direction direction) {
@@ -191,6 +203,9 @@ public class Sensor {
         return new Coordinate(newX, newY);
     }
 
+    /*************************************************************************
+     * Helper methods
+     *************************************************************************/
 
     public Coordinate getPosition() {
         return currentPosition;
@@ -227,7 +242,5 @@ public class Sensor {
     public Vector2 getVelocity2() {
         return this.velocity2;
     }
-
-
 
 }
