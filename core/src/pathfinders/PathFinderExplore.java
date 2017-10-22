@@ -58,12 +58,6 @@ public class PathFinderExplore implements IPathFinder {
         }
         // Comment about how we just generate one point and chuck it in the array. TODO
     }
-    
-    private ArrayList<Coordinate> getToUninterruptibleTarget() {
-        ArrayList<Coordinate> target = new ArrayList<Coordinate>();
-        target.add(this.uninterruptibleTarget);
-        return target;
-    }
 
     private ArrayList<Coordinate> getToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
