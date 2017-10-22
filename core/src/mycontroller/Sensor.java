@@ -25,6 +25,7 @@ public class Sensor {
 
     public Sensor(MyAIController controller) {
         this.controller = controller;
+        this.update();
     }
 
     public void update() {
