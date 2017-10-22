@@ -2,8 +2,6 @@ package pathfollowers;
 
 import java.util.ArrayList;
 
-import mycontroller.MyAIController;
-import mycontroller.Sensor;
 import utilities.Coordinate;
 
 public interface IPathFollower {

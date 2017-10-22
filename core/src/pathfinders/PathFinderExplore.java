@@ -51,17 +51,16 @@ public class PathFinderExplore implements IPathFinder {
     }
 
     private ArrayList<Coordinate> getToWallTrap() {
-        System.out.println("GETTING TO WALL");
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
-        Coordinate targetCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
-        targetCoordinate = sensor.getNearestTileTypesNearCoordinate(targetCoordinate, tileTypesToTarget);
+        Coordinate wallCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
+        Coordinate targetCoordinate = sensor.getNearestTileTypesNearCoordinate(wallCoordinate, tileTypesToTarget);
         if (targetCoordinate != null) {
             target.add(targetCoordinate);
-            return target;
+        } else {
+            // If we get here it means that there is no wall within range.
+            // Just return the furthest point to the north within vision.
+            target.add(sensor.getFurthestPointInDirection(WorldSpatial.Direction.NORTH));
         }
-        // If we get here it means that there is no wall within range.
-        // Just return the furthest point to the north within vision.
-        target.add(sensor.getFurthestPointInDirection(WorldSpatial.Direction.NORTH));
         return target;
     }
     
@@ -88,24 +87,28 @@ public class PathFinderExplore implements IPathFinder {
                 // There's no wall/trap in front in vision, just gun it forward.
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
             } else {
-                // For now just use the point beside the upcoming wall so we slow down.
-                Coordinate roadNearWall = sensor.getNearestTileTypesNearCoordinate(wallInFront, tileTypesToTarget);
-                // Using this point, check to the right of it for free road tiles to go to.
-                Coordinate rightOfRoadNearWall = roadNearWall;
-                for (int i = 1; i <= sensor.getVisionAhead(); i++) {
-                    int[] rightModMap = WorldSpatial.modMap.get(WorldSpatial.getRightOf(sensor.getOrientation()));
-                    Coordinate candidate = new Coordinate(sensor.getPosition().x + (i * rightModMap[0]),
-                            sensor.getPosition().y + (i * rightModMap[1]));
-                    // If the coordinate to the right of the point near the wall is a road, set the
-                    // destination to that point.
-                    if (tileTypesToTarget.contains(sensor.getCurrentView().get(candidate).getType())) {
-                        rightOfRoadNearWall = candidate;
-                    }
-                }
-                target.add(rightOfRoadNearWall);
+                target.add(getToRightOfUpcomingWall(wallInFront));
             }
         }
         return target;
+    }
+    
+    public Coordinate getToRightOfUpcomingWall(Coordinate wallInFront) {
+        // For now just use the point beside the upcoming wall so we slow down.
+        Coordinate roadNearWall = sensor.getNearestTileTypesNearCoordinate(wallInFront, tileTypesToTarget);
+        // Using this point, check to the right of it for free road tiles to go to.
+        Coordinate rightOfRoadNearWall = roadNearWall;
+        for (int i = 1; i <= sensor.getVisionAhead(); i++) {
+            int[] rightModMap = WorldSpatial.modMap.get(WorldSpatial.getRightOf(sensor.getOrientation()));
+            Coordinate candidate = new Coordinate(sensor.getPosition().x + (i * rightModMap[0]),
+                    sensor.getPosition().y + (i * rightModMap[1]));
+            // If the coordinate to the right of the point near the wall is a road, set the
+            // destination to that point.
+            if (tileTypesToTarget.contains(sensor.getCurrentView().get(candidate).getType())) {
+                rightOfRoadNearWall = candidate;
+            }
+        }
+        return rightOfRoadNearWall;
     }
     
     public void trackTraps() {

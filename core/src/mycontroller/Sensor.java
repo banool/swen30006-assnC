@@ -114,6 +114,13 @@ public class Sensor {
         return isDirectlyBesideTileOfTypes(tileTypes, null);
     }
     
+    /**
+     * Check if we're directly (within one tile) beside any of the given tile types.
+     * We can use a relative direction for this, where it'll just check to that side.
+     * @param tileTypes
+     * @param direction
+     * @return
+     */
     public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes, WorldSpatial.RelativeDirection direction) {
         int[] modMap = WorldSpatial.modMap.get(WorldSpatial.getToSideOf(orientation, direction));
         if (direction == null || modMap[0] == 1) {
@@ -140,9 +147,9 @@ public class Sensor {
     }
     
     /**
-     * TODO comment. This returns the nearest tile that is one of the given types.
+     * This returns the nearest tile that is one of the given types.
      * @param tileTypes
-     * @return
+     * @return TODO
      */
     public Coordinate getNearestTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
