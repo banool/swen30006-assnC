@@ -9,13 +9,12 @@ import utilities.Coordinate;
 import world.WorldSpatial;
 
 /**
- * This class serves as the parent of PathFinderExplore and PathFinderEscape.
- * We realised that these two share very common behaviour, with the only major
- * differences being the end condition and what to push onto the stack.
- * Lots of the wall following related behaviour is encapsulated here.
- * @author Hao Le, Daniel Porteous, David Stern
- * 2017-10-22.
- * Group 17.
+ * This class serves as the parent of PathFinderExplore and PathFinderEscape. We
+ * realised that these two share very common behaviour, with the only major
+ * differences being the end condition and what to push onto the stack. Lots of
+ * the wall following related behaviour is encapsulated here.
+ * 
+ * @author Hao Le, Daniel Porteous, David Stern 2017-10-22. Group 17.
  */
 public abstract class PathFinderBasic implements IPathFinder {
 
@@ -23,7 +22,7 @@ public abstract class PathFinderBasic implements IPathFinder {
     protected final ArrayList<MapTile.Type> tileTypesToAvoid;
     /** The tile types that we want to go to, namely Road. */
     protected final ArrayList<MapTile.Type> tileTypesToTarget;
-    
+
     /** The stack of IPathFinders, initially passed in from MyAIController. */
     protected Stack<IPathFinder> pathFinderStack;
     /** The Sensor, initially passed in from MyAIController. */
@@ -31,13 +30,19 @@ public abstract class PathFinderBasic implements IPathFinder {
 
     /** Where the car was when this path finder was instantiated. */
     protected Coordinate start;
-    /** This is used to make sure the path finder doesn't think it is done the moment it is instantiated. */
+    /**
+     * This is used to make sure the path finder doesn't think it is done the moment
+     * it is instantiated.
+     */
     protected boolean hasLeftStart;
 
     /**
      * Here we mainly just set which traps we want to target and avoid.
-     * @param pathFinderStack The stack of IPathFinders
-     * @param sensor The Sensor that was passed from the controller.
+     * 
+     * @param pathFinderStack
+     *            The stack of IPathFinders
+     * @param sensor
+     *            The Sensor that was passed from the controller.
      */
     public PathFinderBasic(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
         tileTypesToAvoid = new ArrayList<MapTile.Type>();
@@ -45,7 +50,7 @@ public abstract class PathFinderBasic implements IPathFinder {
         tileTypesToAvoid.add(MapTile.Type.TRAP);
         tileTypesToTarget = new ArrayList<MapTile.Type>();
         tileTypesToTarget.add(MapTile.Type.ROAD);
-        
+
         this.sensor = sensor;
         this.start = sensor.getPosition();
         this.pathFinderStack = pathFinderStack;
@@ -53,7 +58,9 @@ public abstract class PathFinderBasic implements IPathFinder {
     }
 
     /**
-     * This method gets the car adjacent to one of the tiles held within tileTypesToAvoid.
+     * This method gets the car adjacent to one of the tiles held within
+     * tileTypesToAvoid.
+     * 
      * @return A list of Coordinates to follow in order to get to a wall/trap/etc.
      */
     protected ArrayList<Coordinate> goToWallTrap() {
@@ -65,7 +72,8 @@ public abstract class PathFinderBasic implements IPathFinder {
             if (targetCoordinate.equals(sensor.getPosition())) {
                 // We're already at the target, so move the target forward.
                 int[] modMap = WorldSpatial.modMap.get(sensor.getOrientation());
-                targetCoordinate = new Coordinate(targetCoordinate.x + modMap[0]*sensor.getVisionAhead(), targetCoordinate.y + modMap[1]*sensor.getVisionAhead());
+                targetCoordinate = new Coordinate(targetCoordinate.x + modMap[0] * sensor.getVisionAhead(),
+                        targetCoordinate.y + modMap[1] * sensor.getVisionAhead());
                 targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(targetCoordinate, tileTypesToTarget);
             }
             target.add(targetCoordinate);
@@ -76,10 +84,11 @@ public abstract class PathFinderBasic implements IPathFinder {
         }
         return target;
     }
-    
+
     /**
-     * This method makes the car follow a wall hat it is beside.
-     * It shouldn't be called until the car is adjacent to a wall.
+     * This method makes the car follow a wall hat it is beside. It shouldn't be
+     * called until the car is adjacent to a wall.
+     * 
      * @return A list of Coordinates to follow to get the car to travel along a wall
      */
     protected ArrayList<Coordinate> followWallTrap() {
@@ -103,7 +112,8 @@ public abstract class PathFinderBasic implements IPathFinder {
         } else {
             // We're aligned with the wall/trap beside us, just go in the direction we're
             // facing.
-            Coordinate wallInFront = sensor.getClosestTileInDirectionOfTypes(sensor.getOrientation(), getTileTypesToAvoid());
+            Coordinate wallInFront = sensor.getClosestTileInDirectionOfTypes(sensor.getOrientation(),
+                    getTileTypesToAvoid());
             if (wallInFront == null) {
                 // There's no wall/trap in front in vision, just gun it forward.
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
@@ -115,12 +125,16 @@ public abstract class PathFinderBasic implements IPathFinder {
         }
         return target;
     }
-    
+
     /**
-     * This method is used to get the car to avoid crashing into oncoming tiles to avoid.
-     * To do this it finds the point furthest to the right along the upcoming wall and targets it.
-     * @param wallInFront The Coordinate of the incoming wall
-     * @return A list of Coordinates to follow to get the car to avoid crashing into the wall
+     * This method is used to get the car to avoid crashing into oncoming tiles to
+     * avoid. To do this it finds the point furthest to the right along the upcoming
+     * wall and targets it.
+     * 
+     * @param wallInFront
+     *            The Coordinate of the incoming wall
+     * @return A list of Coordinates to follow to get the car to avoid crashing into
+     *         the wall
      */
     protected Coordinate goToRightOfUpcomingWall(Coordinate wallInFront) {
         // For now just use the point beside the upcoming wall so we slow down.
