@@ -4,19 +4,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.math.Vector2;
 import tiles.MapTile;
 import world.WorldSpatial;
 import utilities.Coordinate;
 
 public class Sensor {
 
+    public final Integer VISION_AHEAD = 3;
 
-    private final Integer VISION_AHEAD = 4;
     private MyAIController controller;
     private Coordinate currentPosition;
     private float angle;
     private WorldSpatial.Direction orientation;
     private HashMap<Coordinate, MapTile> currentView;
+    private double velocity;
+    private Vector2 velocity2;
 
 
     public Sensor(MyAIController controller) {
@@ -28,6 +31,8 @@ public class Sensor {
         this.currentPosition = new Coordinate(controller.getPosition());
         this.angle = controller.getAngle();
         this.orientation = controller.getOrientation();
+        this.velocity = (double) controller.getSpeed();
+        this.velocity2 = controller.getVelocity();
     }
     
     /* TODO comment about what this section of methods are for maybe. */
@@ -131,7 +136,7 @@ public class Sensor {
                 if (nearest == null) {
                     nearest = key;
                 }
-                if (key.distance(currentPosition) < nearest.distance(currentPosition)) {
+                if (key.distanceFrom(currentPosition) < nearest.distanceFrom(currentPosition)) {
                     nearest = key;
                 }
             }
@@ -170,11 +175,11 @@ public class Sensor {
 
 
     public Coordinate getPosition() {
-        return new Coordinate(controller.getPosition());
+        return currentPosition;
     }
 
     public float getAngle() {
-        return angle;
+        return this.angle;
     }
 
     public WorldSpatial.Direction getOrientation() {
@@ -187,6 +192,22 @@ public class Sensor {
     
     public int getVisionAhead() {
         return VISION_AHEAD;
+    }
+
+    public int getX() {
+        return currentPosition.x;
+    }
+
+    public int getY() {
+        return currentPosition.y;
+    }
+
+    public double getVelocity() {
+        return this.velocity;
+    }
+
+    public Vector2 getVelocity2() {
+        return this.velocity2;
     }
 
 

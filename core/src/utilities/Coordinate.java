@@ -56,7 +56,7 @@ public class Coordinate {
 	 * @param c
 	 * @return
 	 */
-	public float distance(Coordinate c) {
+	public float distanceFrom(Coordinate c) {
 	    float xDiff = Math.abs(this.x - c.x);
 	    float yDiff = Math.abs(this.y - c.y);
 	    return (float) Math.sqrt(xDiff*xDiff + yDiff*yDiff);
