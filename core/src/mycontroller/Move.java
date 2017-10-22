@@ -4,7 +4,7 @@ import utilities.Coordinate;
 import utilities.DirectionUtils;
 
 public class Move {
-    
+
     public enum SpeedChange {SLOWDOWN, MAINTAIN, ACCELERATE}
 
     private final Coordinate carCoordinate;
@@ -22,6 +22,12 @@ public class Move {
         this.turnDirection = turnDirection;
     }
 
+    /**
+     * Overrides equals, used when comparing Move objects for equality
+     *
+     * @param obj The object being tested for equality
+     * @return boolean true if the object being compared is considered equal to the calling instance, false otherwise.
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Move) {
@@ -38,6 +44,7 @@ public class Move {
 
     /**
      * getOppositeMove returns a Move representing the opposite move to the calling move.
+     *
      * @return a Move object representing the opposite move to the calling move.
      */
     public Move getOppositeMove() {
@@ -45,14 +52,12 @@ public class Move {
         DirectionUtils.RelativeDirectionDU oppositeDirection = null;
         if (speedChange == SpeedChange.SLOWDOWN) {
             oppositeSpeedChange = SpeedChange.ACCELERATE;
-        }
-        else {
+        } else {
             oppositeSpeedChange = SpeedChange.SLOWDOWN;
         }
         if (turnDirection == DirectionUtils.RelativeDirectionDU.RIGHT) {
             oppositeDirection = DirectionUtils.RelativeDirectionDU.LEFT;
-        }
-        else {
+        } else {
             oppositeDirection = DirectionUtils.RelativeDirectionDU.RIGHT;
         }
         return new Move(carCoordinate, targetCoordinate, degree, oppositeSpeedChange, oppositeDirection);
