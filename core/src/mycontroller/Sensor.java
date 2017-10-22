@@ -184,6 +184,10 @@ public class Sensor {
     public HashMap<Coordinate, MapTile> getCurrentView() {
         return currentView;
     }
+    
+    public int getVisionAhead() {
+        return VISION_AHEAD;
+    }
 
 
 

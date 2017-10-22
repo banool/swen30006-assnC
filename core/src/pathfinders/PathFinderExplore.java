@@ -65,26 +65,42 @@ public class PathFinderExplore implements IPathFinder {
             // We're beside a wall, but not aligned with it.
             // Say that we need to turn left.
             System.out.println("ehhh");
-            Coordinate closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT, tileTypesToTarget);
+            Coordinate closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT,
+                    tileTypesToTarget);
             if (closestToSide == null) {
                 // Turning left would crash us into a wall/trap, turn right instead.
-                //closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.RIGHT, tileTypesToTarget);
+                closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.RIGHT,
+                        tileTypesToTarget);
+                // TODO If we're in a corridor, this might just crash into the right wall.
             }
             System.out.println("???");
             target.add(closestToSide);
         } else {
-            // We're aligned with the wall beside us, just go in the direction we're facing.
-            Coordinate wallInFront = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT, tileTypesToAvoid);
+            // We're aligned with the wall/trap beside us, just go in the direction we're
+            // facing.
+            Coordinate wallInFront = sensor.getClosestTileInDirectionOfTypes(sensor.getOrientation(), tileTypesToAvoid);
             if (wallInFront == null) {
                 // There's no wall/trap in front in vision, just gun it forward.
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
             } else {
                 // For now just use the point beside the upcoming wall so we slow down.
-                target.add(sensor.getNearestTileTypesNearCoordinate(wallInFront, tileTypesToTarget));
+                Coordinate roadNearWall = sensor.getNearestTileTypesNearCoordinate(wallInFront, tileTypesToTarget);
+                // Using this point, check to the right of it for free road tiles to go to.
+                Coordinate rightOfRoadNearWall = roadNearWall;
+                for (int i = 1; i <= sensor.getVisionAhead(); i++) {
+                    int[] rightModMap = WorldSpatial.modMap.get(WorldSpatial.getRightOf(sensor.getOrientation()));
+                    Coordinate candidate = new Coordinate(sensor.getPosition().x + (i * rightModMap[0]),
+                            sensor.getPosition().y + (i * rightModMap[1]));
+                    // If the coordinate to the right of the point near the wall is a road, set the
+                    // destination to that point.
+                    if (tileTypesToTarget.contains(sensor.getCurrentView().get(candidate).getType())) {
+                        rightOfRoadNearWall = candidate;
+                    }
+                }
+                target.add(rightOfRoadNearWall);
             }
         }
         return target;
-        // TODO deal with avoiding obstacles.
     }
 
     @Override
