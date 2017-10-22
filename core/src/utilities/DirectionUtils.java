@@ -20,7 +20,7 @@ public class DirectionUtils {
 
     /** An enum for forwards and backwards, since they weren't supplied. */
     public static enum RelativeDirectionDU {
-        FORWARD, BACKWARD
+        FORWARD, BACKWARD, RIGHT, LEFT
     };
 
     /** A HashMap where a directoin maps to a 2D int array for indexing purposes. */

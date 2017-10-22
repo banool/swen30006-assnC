@@ -12,7 +12,22 @@ import mycontroller.Sensor;
 import utilities.Coordinate;
 import utilities.PeekTuple;
 import world.WorldSpatial;
+import utilities.DirectionUtils;
 
+import static utilities.DirectionUtils.distanceBetweenCoords;
+
+/**
+ * This class serves as the basic path follower. Originally intended on being much simpler, in order to try and get
+ * closer to a working prototype with a less intelligent PathFinder, extra functionality was added to PathFollower,
+ * especially around preventing the car from running into walls.
+ * The main issue now lies with controller.peek(...), which returns the same coordinate for a given set of moves in
+ * uncommon circumstances that only came up after a great number of changes. A better method would be implemented
+ * to properly complete this.
+ *
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public class PathFollowerBasic implements IPathFollower {
 
 
@@ -43,7 +58,7 @@ public class PathFollowerBasic implements IPathFollower {
      * reverse accelerate in order to follow the first coordinate in the list. The list is used for extensibility
      * purposes.
      *
-     * @param delta          The time step specified in Simulation
+     * @param delta          The time step specified in Simulation.
      * @param coordsToFollow The list of coordinates received from a PathFinder class, used to direct the car.
      */
     @Override
@@ -78,7 +93,7 @@ public class PathFollowerBasic implements IPathFollower {
             }
 
             // If directed to do so, go straight
-            WorldSpatial.RelativeDirection tarDirection = getDirection(tarDegree);
+            DirectionUtils.RelativeDirectionDU tarDirection = getDirection(tarDegree);
             if (tarDirection == DirectionUtils.RelativeDirectionDU.FORWARD ||
                     tarDirection == DirectionUtils.RelativeDirectionDU.BACKWARD) {
                 goForwardOrBackward(tarDirection, adjustVelocity(coord));
@@ -86,44 +101,65 @@ public class PathFollowerBasic implements IPathFollower {
 
             // Otherwise, consider turning alternatives
             else {
-
-                // Generate combinations of acceleration, reverse acceleration, Left & Right turns
-                Vector2 currVelocity = sensor.getVelocity2();
-                Vector2[] testSpeeds = getTestSpeeds(currVelocity);
-                Move.SpeedChange[] speedChanges = getSpeedChanges(testSpeeds, currVelocity);
-                WorldSpatial.RelativeDirection[] testDirections = {WorldSpatial.RelativeDirection.LEFT,
-                        WorldSpatial.RelativeDirection.RIGHT};
-
-                // Find the best direction and the index of the best change in velocity to reach the destination
-                WorldSpatial.RelativeDirection bestDirection = null;
-                int bestSpeedInd = 0;
-                float minDist = Float.MAX_VALUE;
-                for (int speed = 0; speed < 3; speed++) {
-                    for (int d = 0; d < 2; d++) {
-
-                        // Use controller.peek(...) to determine best combination to reach target coordinate
-                        // TODO: BUG! peek(...) method doesn't accurately predict coordinate. Re-write peek(...).
-                        PeekTuple approxDest = controller.peek(testSpeeds[speed], tarDegree, testDirections[d], delta);
-                        Coordinate approxCoord = approxDest.getCoordinate();
-                        float projectedDistanceFromTarget = coord.distanceFrom(approxCoord);
-
-                        // Moves that lead to reachable destinations closest to the predicted coordinates are the best
-                        if (approxDest.getReachable() && projectedDistanceFromTarget < minDist) {
-                            minDist = coord.distanceFrom(approxCoord);
-                            bestDirection = testDirections[d];
-                            bestSpeedInd = speed;
-                        }
-                    }
-                }
-                // Move the car!
-                moveCar(currVelocity.len(), testSpeeds[bestSpeedInd].len(), delta, bestDirection);
-
-                // Update Queue of Last Moves
-                previousMoves.offer(new Move(sensor.getPosition(), coord, sensor.getAngle(), speedChanges[bestSpeedInd],
-                        bestDirection));
+                // Generate & Test Method of Determining Best Manoeuvre of the car
+                makeBestTurningMove(tarDegree, coord, delta);
             }
         }
     }
+
+    /**
+     * Generates and tests different alternatives for acceleration and turning, selecting and making the move that is
+     * predicted by peek(...) to take the car closest to the targeted coordinate.
+     *
+     * @param tarDegree The degree of the targeted coordinate.
+     * @param coord     The targeted coordinate given by the PathFinder class.
+     * @param delta     The time step specified in Simulation.
+     */
+    private void makeBestTurningMove(float tarDegree, Coordinate coord, float delta) {
+
+        // Generate combinations of acceleration, reverse acceleration, Left & Right turns
+        Vector2 currVelocity = sensor.getVelocity2();
+        Vector2[] testSpeeds = getTestSpeeds(currVelocity);
+        Move.SpeedChange[] speedChanges = getSpeedChanges(testSpeeds, currVelocity);
+        DirectionUtils.RelativeDirectionDU[] testDirections = {DirectionUtils.RelativeDirectionDU.LEFT,
+                DirectionUtils.RelativeDirectionDU.RIGHT};
+
+        // Find the best direction and the index of the best change in velocity to reach the destination
+        DirectionUtils.RelativeDirectionDU bestDirection = null;
+        int bestSpeedInd = 0;
+        float minDist = Float.MAX_VALUE;
+        for (int speed = 0; speed < 3; speed++) {
+            for (int d = 0; d < 2; d++) {
+
+                // Use controller.peek(...) to determine best combination to reach target coordinate
+                // TODO: BUG! peek(...) method doesn't accurately predict coordinate. Re-write peek(...).
+                WorldSpatial.RelativeDirection testDirection = null;
+                if (testDirections[d] == DirectionUtils.RelativeDirectionDU.RIGHT) {
+                    testDirection = WorldSpatial.RelativeDirection.RIGHT;
+                }
+                else {
+                    testDirection = WorldSpatial.RelativeDirection.LEFT;
+                }
+                PeekTuple approxDest = controller.peek(testSpeeds[speed], tarDegree, testDirection, delta);
+                Coordinate approxCoord = approxDest.getCoordinate();
+                float projectedDistanceFromTarget = distanceBetweenCoords(coord, approxCoord);
+
+                // Moves that lead to reachable destinations closest to the predicted coordinates are the best
+                if (approxDest.getReachable() && projectedDistanceFromTarget < minDist) {
+                    minDist = distanceBetweenCoords(coord, approxCoord);
+                    bestDirection = testDirections[d];
+                    bestSpeedInd = speed;
+                }
+            }
+        }
+        // Move the car!
+        moveCar(currVelocity.len(), testSpeeds[bestSpeedInd].len(), delta, bestDirection);
+
+        // Update Queue of Last Moves
+        previousMoves.offer(new Move(sensor.getPosition(), coord, sensor.getAngle(), speedChanges[bestSpeedInd],
+                bestDirection));
+    }
+
 
     /**
      * updateEscape is an alternate update method, used during 'escape' mode.
@@ -136,7 +172,7 @@ public class PathFollowerBasic implements IPathFollower {
     private void updateEscape(float delta, Coordinate coord, float tarDegree) {
 
         // If we're escaping and reach a point where all of the previous moves were the same, only move forward!
-        if (escaping && numEscapeMoves > 0 allSame(previousMoves)){
+        if (escaping && numEscapeMoves > 0 && allSame(previousMoves)){
             moveOnlyForward(delta, coord);
             numEscapeMoves += 1;
             return;
@@ -188,7 +224,7 @@ public class PathFollowerBasic implements IPathFollower {
      */
     private void moveOnlyForward(float delta, Coordinate targetCoord) {
         Move.SpeedChange speedChange;
-        WorldSpatial.RelativeDirection direction = DirectionUtils.RelativeDirectionDU.FORWARD;
+        DirectionUtils.RelativeDirectionDU direction = DirectionUtils.RelativeDirectionDU.FORWARD;
 
         // Forward or reverse-acceleration based on the speed change specified in the Move.
         if (escapeMove.getSpeedChange() == Move.SpeedChange.ACCELERATE) {
@@ -214,7 +250,7 @@ public class PathFollowerBasic implements IPathFollower {
      */
     private void moveCar(Move escapeMove, float delta, Coordinate targetCoord) {
         Move.SpeedChange speedChange;
-        WorldSpatial.RelativeDirection direction;
+        DirectionUtils.RelativeDirectionDU direction;
 
         if (escapeMove.getSpeedChange() == Move.SpeedChange.ACCELERATE) {
             controller.applyForwardAcceleration();
@@ -223,12 +259,12 @@ public class PathFollowerBasic implements IPathFollower {
             controller.applyReverseAcceleration();
             speedChange = Move.SpeedChange.SLOWDOWN;
         }
-        if (escapeMove.getTurnDirection() == WorldSpatial.RelativeDirection.RIGHT) {
+        if (escapeMove.getTurnDirection() == DirectionUtils.RelativeDirectionDU.RIGHT) {
             controller.turnRight(delta);
-            direction = WorldSpatial.RelativeDirection.RIGHT;
+            direction = DirectionUtils.RelativeDirectionDU.RIGHT;
         } else {
             controller.turnLeft(delta);
-            direction = WorldSpatial.RelativeDirection.LEFT;
+            direction = DirectionUtils.RelativeDirectionDU.LEFT;
         }
         lastHealth = sensor.getHealth();
         previousMoves.offer(new Move(sensor.getPosition(), targetCoord, sensor.getAngle(), speedChange, direction));
@@ -244,13 +280,13 @@ public class PathFollowerBasic implements IPathFollower {
      * @param bestDirection   The direction identified as desirable.
      */
     private void moveCar(float currentVelocity, float desiredVelocity, float delta,
-                         WorldSpatial.RelativeDirection bestDirection) {
+                         DirectionUtils.RelativeDirectionDU bestDirection) {
         if (currentVelocity < desiredVelocity) {
             controller.applyForwardAcceleration();
         } else {
             controller.applyReverseAcceleration();
         }
-        if (bestDirection == WorldSpatial.RelativeDirection.RIGHT) {
+        if (bestDirection == DirectionUtils.RelativeDirectionDU.RIGHT) {
             controller.turnRight(delta);
         } else {
             controller.turnLeft(delta);
@@ -262,6 +298,7 @@ public class PathFollowerBasic implements IPathFollower {
     /**
      * getTestSpeeds generates an array of Vector2 objects representing different speeds, to be given to peek(...) to
      * generate different possible moves the car can make.
+     *
      * @param currVelocity The current velocity of the car.
      * @return An array of Vector2 objects representing the velocities to feed into peek(...).
      */
@@ -280,7 +317,8 @@ public class PathFollowerBasic implements IPathFollower {
     /**
      * getSpeedChanges generates an array of Move.SpeedChange objects representing different speeds, to be given to
      * peek(...) to generate different possible moves the car can make.
-     * @param testSpeeds The array of different possible speeds to be fed into peek(...).
+     *
+     * @param testSpeeds   The array of different possible speeds to be fed into peek(...).
      * @param currVelocity The current velocity of the car.
      * @return Move.SpeedChange[] an array of Move.SpeedChange objects representing the different changes in speed that
      * correlate exactly with the different Vector2 objects in testSpeeds.
@@ -302,10 +340,11 @@ public class PathFollowerBasic implements IPathFollower {
     /**
      * goForwardOrBackward takes a direction and a speed change, and directs the car only forward or backwards, based
      * on those arguments.
-     * @param d Represents the direction specified by the calling object.
+     *
+     * @param d           Represents the direction specified by the calling object.
      * @param speedChange Represents the change in speed specified by the calling object.
      */
-    private void goForwardOrBackward(WorldSpatial.RelativeDirection d, Move.SpeedChange speedChange) {
+    private void goForwardOrBackward(DirectionUtils.RelativeDirectionDU d, Move.SpeedChange speedChange) {
         if (d == DirectionUtils.RelativeDirectionDU.FORWARD) {
             if (speedChange == Move.SpeedChange.ACCELERATE) {
                 controller.applyForwardAcceleration();
@@ -327,6 +366,7 @@ public class PathFollowerBasic implements IPathFollower {
     /**
      * adjustVelocity takes a coordinate and indicates whether the PathFinder is communicating that the car should slow,
      * maintain its speed, or accelerate.
+     *
      * @param coordinate The targeted coordinate given by the PathFinder
      * @return A Move.SpeedChange that indicates the change in speed desired by the PathFinder.
      */
@@ -334,11 +374,11 @@ public class PathFollowerBasic implements IPathFollower {
         Coordinate carPosition = sensor.getPosition();
 
         // If the PathFinder is telling us to slow down, or if we're above the max speed, slow down!
-        if (coordinate.distanceFrom(carPosition) <= sensor.VISION_AHEAD / 3 || sensor.getVelocity() > MAX_SPEED) {
+        if (distanceBetweenCoords(coordinate, carPosition) <= sensor.VISION_AHEAD / 3 || sensor.getVelocity() > MAX_SPEED) {
             return Move.SpeedChange.SLOWDOWN;
         }
         // If the PathFinder is happy with our acceleration, or we're at max speed, maintain current speed
-        else if (coordinate.distanceFrom(carPosition) < sensor.VISION_AHEAD || sensor.getVelocity() == MAX_SPEED) {
+        else if (distanceBetweenCoords(coordinate, carPosition) < sensor.VISION_AHEAD || sensor.getVelocity() == MAX_SPEED) {
             return Move.SpeedChange.MAINTAIN;
         }
         // If the PathFinder is saying to go to the coordinate at or beyond the edge of our visual map & we're below
@@ -351,6 +391,7 @@ public class PathFollowerBasic implements IPathFollower {
 
     /**
      * getDegreeOfCoord Gets the degree of the Coordinate, in relation to the direction the car is currently facing.
+     *
      * @param coord The coordinate being targeted, fed by PathFinder
      * @return double representing the degree of the coordinate in relation to the current direction of the car.
      */
@@ -379,9 +420,9 @@ public class PathFollowerBasic implements IPathFollower {
      * getDirection takes a degree and returns the direction of that degree.
      *
      * @param degree A double representing the degree being converted into a direction.
-     * @return A WorldSpatial.RelativeDirection representation of the direction.
+     * @return A DirectionUtils.RelativeDirectionDU representation of the direction.
      */
-    private WorldSpatial.RelativeDirection getDirection(double degree) {
+    private DirectionUtils.RelativeDirectionDU getDirection(double degree) {
 
         double tarAngle = degree;
         double carAngle = sensor.getAngle();
@@ -393,15 +434,15 @@ public class PathFollowerBasic implements IPathFollower {
             return DirectionUtils.RelativeDirectionDU.BACKWARD;
         } else if (Math.abs(carAngle - tarAngle) < 180) {
             if (carAngle < tarAngle) {
-                return WorldSpatial.RelativeDirection.LEFT;
+                return DirectionUtils.RelativeDirectionDU.LEFT;
             } else {
-                return WorldSpatial.RelativeDirection.RIGHT;
+                return DirectionUtils.RelativeDirectionDU.RIGHT;
             }
         } else {
             if (carAngle < tarAngle) {
-                return WorldSpatial.RelativeDirection.RIGHT;
+                return DirectionUtils.RelativeDirectionDU.RIGHT;
             } else {
-                return WorldSpatial.RelativeDirection.LEFT;
+                return DirectionUtils.RelativeDirectionDU.LEFT;
             }
         }
     }

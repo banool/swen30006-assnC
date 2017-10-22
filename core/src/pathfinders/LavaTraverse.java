@@ -28,7 +28,7 @@ public class LavaTraverse extends TrapTraverse {
     }
     
     public boolean isDone() {
-        // METHOD STUB
+        // TODO Auto-generated method stub
         return true;
     }
 

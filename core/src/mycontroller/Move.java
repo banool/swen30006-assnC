@@ -1,7 +1,7 @@
 package mycontroller;
 
 import utilities.Coordinate;
-import world.WorldSpatial;
+import utilities.DirectionUtils;
 
 public class Move {
 
@@ -11,10 +11,10 @@ public class Move {
     private final Coordinate targetCoordinate;
     private final float degree;
     private final SpeedChange speedChange;
-    private final WorldSpatial.RelativeDirection turnDirection;
+    private final DirectionUtils.RelativeDirectionDU turnDirection;
 
     public Move(Coordinate carC, Coordinate tarC, float degree, SpeedChange speedChange,
-                WorldSpatial.RelativeDirection turnDirection) {
+                DirectionUtils.RelativeDirectionDU turnDirection) {
         this.carCoordinate = carC;
         this.targetCoordinate = tarC;
         this.degree = degree;
@@ -37,18 +37,18 @@ public class Move {
 
     public Move getOppositeMove() {
         SpeedChange oppositeSpeedChange = null;
-        WorldSpatial.RelativeDirection oppositeDirection = null;
+        DirectionUtils.RelativeDirectionDU oppositeDirection = null;
         if (speedChange == SpeedChange.SLOWDOWN) {
             oppositeSpeedChange = SpeedChange.ACCELERATE;
         }
         else {
             oppositeSpeedChange = SpeedChange.SLOWDOWN;
         }
-        if (turnDirection == WorldSpatial.RelativeDirection.RIGHT) {
-            oppositeDirection = WorldSpatial.RelativeDirection.LEFT;
+        if (turnDirection == DirectionUtils.RelativeDirectionDU.RIGHT) {
+            oppositeDirection = DirectionUtils.RelativeDirectionDU.LEFT;
         }
         else {
-            oppositeDirection = WorldSpatial.RelativeDirection.RIGHT;
+            oppositeDirection = DirectionUtils.RelativeDirectionDU.RIGHT;
         }
         return new Move(carCoordinate, targetCoordinate, degree, oppositeSpeedChange, oppositeDirection);
     }
@@ -60,7 +60,7 @@ public class Move {
         return this.speedChange;
     }
 
-    public WorldSpatial.RelativeDirection getTurnDirection() {
+    public DirectionUtils.RelativeDirectionDU getTurnDirection() {
         return this.turnDirection;
     }
 }
