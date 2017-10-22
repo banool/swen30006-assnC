@@ -58,6 +58,7 @@ public class PathFinderExplore implements IPathFinder {
         Coordinate wallCoordinate = sensor.getNearestTileOfTypes(tileTypesToAvoid);
         Coordinate targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(wallCoordinate, tileTypesToTarget);
         if (targetCoordinate != null) {
+            if (targetCoordinate)
             target.add(targetCoordinate);
         } else {
             // If we get here it means that there is no wall within range.
@@ -141,7 +142,7 @@ public class PathFinderExplore implements IPathFinder {
      * Each escape pathfinder takes the appropriate trap section as a constructor argument.
      */
     public boolean isDone() {
-        boolean done = (start == sensor.getPosition());
+        boolean done = (start.equals(sensor.getPosition()));
         if (done) {
             for (HashMap<Coordinate, TrapTile> trapSection : trapSections) {
                 pathFinderStack.push(new PathFinderEscape(pathFinderStack, sensor, trapSection));

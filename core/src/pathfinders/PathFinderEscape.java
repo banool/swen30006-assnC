@@ -112,7 +112,7 @@ public class PathFinderEscape implements IPathFinder {
      * Now we push on an appropriate TrapTraverse PathFinder.
      */
     public boolean isDone() {
-        boolean done = (start == sensor.getPosition());
+        boolean done = (start.equals(sensor.getPosition()));
         if (done) {
             pathFinderStack.push(TrapTraverse.getTrapTraverse(pathFinderStack, sensor, trapSection));
         }
