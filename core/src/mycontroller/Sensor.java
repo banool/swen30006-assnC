@@ -49,8 +49,9 @@ public class Sensor {
 
     /**
      * Gets the tiles directly in front of (orientation) of the vehicle
-     * @param orientation
-     * @return
+     *
+     * @param orientation is the direction the car is facing
+     * @return internal representation of the map/tiles (through hashmap of coordinates and tiles)
      */
     private HashMap<Coordinate, MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
@@ -61,22 +62,24 @@ public class Sensor {
         }
         return tiles;
     }
-    
+
     /**
      * This method just reroutes RelativeDirection arguments through into the
      * regular Direction based method.
-     * @param direction
-     * @return
+     *
+     * @param direction is the relative direction of the car
+     * @return internal representation of the map/tiles (through hashmap of coordinates and tiles)
      */
     public HashMap<Coordinate,MapTile> getTilesInDirection(WorldSpatial.RelativeDirection direction) {
         return getTilesInDirection(WorldSpatial.getToSideOf(orientation, direction));
     }
-    
+
     /**
      * Gets the closest tile of a specified list of types in the given direction.
-     * @param direction
-     * @param tileTypes
-     * @return
+     *
+     * @param orientation the direction that the car is facing
+     * @param tileTypes the collection of tiles
+     * @return coordinate of the closest tile
      */
     public Coordinate getClosestTileInDirectionOfTypes(WorldSpatial.Direction orientation, ArrayList<MapTile.Type> tileTypes) {
         HashMap<Coordinate,MapTile> tilesInDirection = getTilesInDirection(orientation);
@@ -97,23 +100,24 @@ public class Sensor {
         }
         return nearest;
     }
-    
+
     /**
      * This method just acts a RelativeDirection front end for the Direction based version.
      * It does this by converting the RelativeDirection into a Direction based on the current orientation.
-     * @param direction
-     * @param tileTypes
-     * @return
+     *
+     * @param direction is the direction the car is facing
+     * @param tileTypes the collection of tiles
+     * @return coordinate of the closest tile
      */
     public Coordinate getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection direction, ArrayList<MapTile.Type> tileTypes) {
         return getClosestTileInDirectionOfTypes(WorldSpatial.getToSideOf(orientation, direction), tileTypes);      
     }
 
-
     /**
-     * Checks if the wall is on the car's left hand side
-     * NOTE TODO, this doesnt just consider the immediate left, but the left within vision.
+     * Checks if the wall is on the car's left hand side.
+     * This doesnt just consider the immediate left, but the left within vision.
      * If we wanted to just consider the immediate left, we could use isBesideTileOfTypes.
+     *
      * @return boolean true if the wall is on the car's LHS
      */
     public boolean isFollowingTileTypes(ArrayList<MapTile.Type> tileTypes) {
@@ -122,8 +126,9 @@ public class Sensor {
     
     /**
      * Interface into isDirectlyBesideTileOfTypes that checks for all sides (forward, left, right, back).
-     * @param tileTypes
-     * @return
+     *
+     * @param tileTypes the collection of tiles
+     * @return boolean is true if the car is directly beside a tile in any direction
      */
     public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         return isDirectlyBesideTileOfTypes(tileTypes, null);
@@ -132,9 +137,10 @@ public class Sensor {
     /**
      * Check if we're directly (within one tile) beside any of the given tile types.
      * We can use a relative direction for this, where it'll just check to that side.
-     * @param tileTypes
-     * @param direction
-     * @return
+     *
+     * @param tileTypes the collection of tiles
+     * @param direction the direction we are checking for (null if we want to check all directions)
+     * @return boolean is true if the car is directly beside a tile in any direction
      */
     public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes, WorldSpatial.RelativeDirection direction) {
         int[] modMap = WorldSpatial.modMap.get(WorldSpatial.getToSideOf(orientation, direction));
@@ -163,8 +169,9 @@ public class Sensor {
     
     /**
      * This returns the nearest tile that is one of the given types.
-     * @param tileTypes
-     * @return TODO
+     *
+     * @param tileTypes the collection of tiles
+     * @return coordinate of the nearest tile of the given type
      */
     public Coordinate getNearestTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
@@ -186,8 +193,9 @@ public class Sensor {
     
     /**
      * This returns the road tile closest to the given coordinate.
-     * @param tileTypes
-     * @return
+     *
+     * @param tileTypes the collection of tiles
+     * @return coordinate of the nearest road tile
      */
     public Coordinate getNearestTileOfTypesNearCoordinate(Coordinate coordinate, ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
@@ -207,6 +215,12 @@ public class Sensor {
         return nearest;
     }
     
+    /**
+     * This returns the tile of the furthest point in a specified direction
+     *
+     * @param direction specified direction supplied as input
+     * @return coordinate of the furthest tile
+     */
     public Coordinate getFurthestPointInDirection(WorldSpatial.Direction direction) {
         int newX = currentPosition.x + WorldSpatial.modMap.get(direction)[0] * VISION_AHEAD;
         int newY = currentPosition.y + WorldSpatial.modMap.get(direction)[1] * VISION_AHEAD;
