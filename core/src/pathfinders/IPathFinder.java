@@ -2,13 +2,24 @@ package pathfinders;
 
 import java.util.ArrayList;
 
-import mycontroller.Sensor;
 import utilities.Coordinate;
 
+/**
+ * This interface defines the two most important common method signatures
+ * for a PathFinder, namely an update method and a way to tell if the
+ * PathFinder is done. All PathFinders should implement this interface.
+ * 
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
+ */
 public interface IPathFinder {
 
-    // TODO comment on how we don't take the Sensor anymore in update, since we
-    // have a reference to it from the constructor.
+    /**
+     * In the provided design class diagram, this method took a SensorData. 
+     * Now we just pass a reference to the Sensor to each PathFinder's 
+     * constructor so this is no longer necessary.
+     */
     public ArrayList<Coordinate> update();
 
     public boolean isDone();
