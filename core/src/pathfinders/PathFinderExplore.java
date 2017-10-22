@@ -35,6 +35,9 @@ public class PathFinderExplore implements IPathFinder {
         this.sensor = sensor;
         start = sensor.getPosition();
         this.pathFinderStack = pathFinderStack;
+        
+        this.trapSections = new ArrayList<HashMap<Coordinate, TrapTile>>();
+        this.currentTrapSection = new HashMap<Coordinate, TrapTile>();
     }
 
     @Override
@@ -112,8 +115,24 @@ public class PathFinderExplore implements IPathFinder {
     }
     
     public void trackTraps() {
-        // TODO Add traps to the left to currentTrapSection if they're not broken up by a wall.
-        // If we see a wall, we need to "commit" the currentTrapSection to trapSections.
+        ArrayList<MapTile.Type> traps = new ArrayList<MapTile.Type>();
+        traps.add(MapTile.Type.TRAP);
+        int[] leftModMap = WorldSpatial.modMap.get(WorldSpatial.getToSideOf(sensor.getOrientation(), WorldSpatial.RelativeDirection.LEFT));
+        Coordinate left = new Coordinate(sensor.getPosition().x + leftModMap[0], sensor.getPosition().y + leftModMap[1]);
+        // If the tile to our left is part a trap, add it to the current trap section.
+        if (sensor.isDirectlyBesideTileOfTypes(traps, WorldSpatial.RelativeDirection.LEFT)) {
+            currentTrapSection.put(left, (TrapTile) sensor.getCurrentView().get(left));
+        }
+        traps.remove(MapTile.Type.TRAP);
+        traps.add(MapTile.Type.WALL);
+        // If the tile to our left is a wall and we have a non-empty currentTrapSection, add it to the list of all trap sections.
+        if (currentTrapSection.size() > 0 && sensor.isDirectlyBesideTileOfTypes(traps, WorldSpatial.RelativeDirection.LEFT)) {
+            @SuppressWarnings("unchecked")
+            HashMap<Coordinate, TrapTile> clone = (HashMap<Coordinate, TrapTile>) currentTrapSection.clone();
+            trapSections.add(clone);
+            // We've added the current trap section to the list of all trap sections, empty the current trap section.
+            currentTrapSection.clear();
+        }
     }
 
     /**
