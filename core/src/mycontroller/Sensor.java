@@ -75,7 +75,7 @@ public class Sensor {
                 if (nearest == null) {
                     nearest = key;
                 }
-                if (key.distance(currentPosition) < nearest.distance(currentPosition)) {
+                if (key.distanceFrom(currentPosition) < nearest.distanceFrom(currentPosition)) {
                     nearest = key;
                 }
             }
@@ -159,7 +159,7 @@ public class Sensor {
                 if (nearest == null) {
                     nearest = key;
                 }
-                if (key.distance(coordinate) < nearest.distance(coordinate)) {
+                if (key.distanceFrom(coordinate) < nearest.distanceFrom(coordinate)) {
                     nearest = key;
                 }
             }

@@ -197,19 +197,6 @@ public class PathFollowerBasic implements IPathFollower {
     }
 
 
-    private Boolean isOnLeft(double thisCoord, double targetCoord) {
-
-    }
-
-
-    // Function to return how close a PeekTuple is to a coordinate
-
-
-    private WorldSpatial.RelativeDirection getTurnDirection(Coordinate coord) {
-
-    }
-
-
 //    private void turnToCoord(Coordinate coord) {
 //
 //        // Turn in Relative direction of the coordinate in relation to the current direction of the car
