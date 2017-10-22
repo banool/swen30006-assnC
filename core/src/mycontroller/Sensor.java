@@ -231,42 +231,92 @@ public class Sensor {
      * Helper methods
      *************************************************************************/
 
+    /**
+     * Gets the current position of the car
+     * 
+     * @return coordinates of the car's current position
+     */
     public Coordinate getPosition() {
         return currentPosition;
     }
 
+    /**
+     * Gets the current angle that the car is currently facing
+     * 
+     * @return angle as a float
+     */
     public float getAngle() {
         return this.angle;
     }
 
+    /**
+     * Gets the orientation of the car
+     * 
+     * @return direction relative to the world
+     */
     public WorldSpatial.Direction getOrientation() {
         return orientation;
     }
 
+    /**
+     * Gets the current view surrounding the car
+     * 
+     * @return hashmap of the tiles around the car in visible range
+     */
     public HashMap<Coordinate, MapTile> getCurrentView() {
         return currentView;
     }
     
+    /**
+     * Returns the value of how far ahead the car can see
+     * 
+     * @return integer of how many tiles ahead the car can see
+     */
     public int getVisionAhead() {
         return VISION_AHEAD;
     }
 
+    /**
+     * Returns the x coordinate of the current position of the car
+     * 
+     * @return x coordinate of the current position as an integer value
+     */
     public int getX() {
         return currentPosition.x;
     }
 
+    /**
+     * Returns the y coordinate of the current position of the car
+     * 
+     * @return y coordinate of the current position as an integer value
+     */
     public int getY() {
         return currentPosition.y;
     }
 
+    /**
+     * Returns the current velocity of the car
+     * 
+     * @return current velocity of the car as a double value
+     */
     public double getVelocity() {
         return this.velocity;
     }
 
+    /**
+     * Returns the current velocity of the car
+     * 
+     * @return current velocity of the car as a Vector2 value
+     */
     public Vector2 getVelocity2() {
         return this.velocity2;
     }
 
+    /**
+     * Returns the current health of the car
+     * 
+     * @return current health of the car as an integer value
+     */
     public int getHealth() {
         return health;
     }
