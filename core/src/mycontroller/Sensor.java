@@ -102,7 +102,7 @@ public class Sensor {
                 if (nearest == null) {
                     nearest = key;
                 }
-                if (key.distanceFrom(currentPosition) < nearest.distanceFrom(currentPosition)) {
+                if (DirectionUtils.distanceBetweenCoords(key, currentPosition) < DirectionUtils.distanceBetweenCoords(nearest, currentPosition)) {
                     nearest = key;
                 }
             }
@@ -192,7 +192,7 @@ public class Sensor {
                 if (nearest == null) {
                     nearest = key;
                 }
-                if (key.distanceFrom(currentPosition) < nearest.distanceFrom(currentPosition)) {
+                if (DirectionUtils.distanceBetweenCoords(key, currentPosition) < DirectionUtils.distanceBetweenCoords(nearest, currentPosition)) {
                     nearest = key;
                 }
             }
@@ -216,7 +216,7 @@ public class Sensor {
                 if (nearest == null) {
                     nearest = key;
                 }
-                if (key.distanceFrom(coordinate) < nearest.distanceFrom(coordinate)) {
+                if (DirectionUtils.distanceBetweenCoords(key, coordinate) < DirectionUtils.distanceBetweenCoords(nearest, coordinate)) {
                     nearest = key;
                 }
             }

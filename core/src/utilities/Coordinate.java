@@ -50,18 +50,6 @@ public class Coordinate {
 		return (coordinate.x == this.x) && (coordinate.y == this.y);
 	}
 	
-	/**
-	 * TODO finish this comment.
-	 * Gets the euclidian distance between this Coordinate and another Coordinate.
-	 * @param c
-	 * @return
-	 */
-	public float distanceFrom(Coordinate c) {
-	    float xDiff = Math.abs(this.x - c.x);
-	    float yDiff = Math.abs(this.y - c.y);
-	    return (float) Math.sqrt(xDiff*xDiff + yDiff*yDiff);
-	}
-	
 	public int hashCode(){
 		return Objects.hash(x,y);
 	}
