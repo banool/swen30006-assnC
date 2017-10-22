@@ -13,20 +13,32 @@ import world.WorldSpatial;
  * We realised that these two share very common behaviour, with the only major
  * differences being the end condition and what to push onto the stack.
  * Lots of the wall following related behaviour is encapsulated here.
- * @author daniel
- *
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
  */
 public abstract class PathFinderBasic implements IPathFinder {
 
+    /** The tile types that we want the car to avoid running in to. */
     protected final ArrayList<MapTile.Type> tileTypesToAvoid;
+    /** The tile types that we want to go to, namely Road. */
     protected final ArrayList<MapTile.Type> tileTypesToTarget;
     
+    /** The stack of IPathFinders, initially passed in from MyAIController. */
     protected Stack<IPathFinder> pathFinderStack;
+    /** The Sensor, initially passed in from MyAIController. */
     protected Sensor sensor;
 
+    /** Where the car was when this path finder was instantiated. */
     protected Coordinate start;
+    /** This is used to make sure the path finder doesn't think it is done the moment it is instantiated. */
     protected boolean hasLeftStart;
 
+    /**
+     * Here we mainly just set which traps we want to target and avoid.
+     * @param pathFinderStack The stack of IPathFinders
+     * @param sensor The Sensor that was passed from the controller.
+     */
     public PathFinderBasic(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
         tileTypesToAvoid = new ArrayList<MapTile.Type>();
         tileTypesToAvoid.add(MapTile.Type.WALL);
@@ -40,15 +52,18 @@ public abstract class PathFinderBasic implements IPathFinder {
         this.hasLeftStart = false;
     }
 
-    protected ArrayList<Coordinate> getToWallTrap() {
+    /**
+     * This method gets the car adjacent to one of the tiles held within tileTypesToAvoid.
+     * @return A list of Coordinates to follow in order to get to a wall/trap/etc.
+     */
+    protected ArrayList<Coordinate> goToWallTrap() {
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
         Coordinate wallCoordinate = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.LEFT,
                 tileTypesToTarget);
         Coordinate targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(wallCoordinate, tileTypesToTarget);
         if (targetCoordinate != null) {
-            System.out.println("pre target " + targetCoordinate);
             if (targetCoordinate.equals(sensor.getPosition())) {
-                // We stop at the target, so move the target forward.
+                // We're already at the target, so move the target forward.
                 int[] modMap = WorldSpatial.modMap.get(sensor.getOrientation());
                 targetCoordinate = new Coordinate(targetCoordinate.x + modMap[0]*sensor.getVisionAhead(), targetCoordinate.y + modMap[1]*sensor.getVisionAhead());
                 targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(targetCoordinate, tileTypesToTarget);
@@ -62,8 +77,13 @@ public abstract class PathFinderBasic implements IPathFinder {
         return target;
     }
     
+    /**
+     * This method makes the car follow a wall hat it is beside.
+     * It shouldn't be called until the car is adjacent to a wall.
+     * @return A list of Coordinates to follow to get the car to travel along a wall
+     */
     protected ArrayList<Coordinate> followWallTrap() {
-        // We're beside a wall/trap, follow it, avoiding walls and traps in front.
+        // We're beside a wall/trap, so follow it, avoiding walls and traps in front.
         ArrayList<Coordinate> target = new ArrayList<Coordinate>();
         if (!sensor.isFollowingTileTypes(getTileTypesToAvoid())) {
             // We're beside a wall, but not aligned with it.
@@ -74,7 +94,10 @@ public abstract class PathFinderBasic implements IPathFinder {
                 // Turning left would crash us into a wall/trap, turn right instead.
                 closestToSide = sensor.getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection.RIGHT,
                         tileTypesToTarget);
-                // TODO If we're in a corridor, this might just crash into the right wall.
+                if (closestToSide == null) {
+                    // Turning right would also crash us into a wall, turn on the spot.
+                    closestToSide = sensor.getPosition();
+                }
             }
             target.add(closestToSide);
         } else {
@@ -85,17 +108,22 @@ public abstract class PathFinderBasic implements IPathFinder {
                 // There's no wall/trap in front in vision, just gun it forward.
                 target.add(sensor.getFurthestPointInDirection(sensor.getOrientation()));
             } else {
-                System.out.println("Getting to the right of upcoming wall");
-                Coordinate rightTarget = getToRightOfUpcomingWall(wallInFront);
+                // There's a wall coming up, target as far to the right of it as we can.
+                Coordinate rightTarget = goToRightOfUpcomingWall(wallInFront);
                 target.add(rightTarget);
             }
         }
         return target;
     }
     
-    protected Coordinate getToRightOfUpcomingWall(Coordinate wallInFront) {
+    /**
+     * This method is used to get the car to avoid crashing into oncoming tiles to avoid.
+     * To do this it finds the point furthest to the right along the upcoming wall and targets it.
+     * @param wallInFront The Coordinate of the incoming wall
+     * @return A list of Coordinates to follow to get the car to avoid crashing into the wall
+     */
+    protected Coordinate goToRightOfUpcomingWall(Coordinate wallInFront) {
         // For now just use the point beside the upcoming wall so we slow down.
-        System.out.println("wall in front: " + wallInFront);
         Coordinate roadNearWall = sensor.getNearestTileOfTypesNearCoordinate(wallInFront, tileTypesToTarget);
         // Using this point, check to the right of it for free road tiles to go to.
         Coordinate rightOfRoadNearWall = roadNearWall;

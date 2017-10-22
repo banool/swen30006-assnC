@@ -15,9 +15,11 @@ import world.WorldSpatial;
  * This PathFinder is responsible for getting the car adjacent to a trap section.
  * After a PathFinderExplore has identified the traps in a "room", it (or something
  * else) can create this to get beside one of those traps. There should be one of
- * these pushed onto the stack for each identified trap section.
- * @author daniel
- *
+ * these pushed onto the stack for each identified trap section. Once this PathFinder
+ * gets adjacent to the trap section, its job is done.
+ * @author Hao Le, Daniel Porteous, David Stern
+ * 2017-10-22.
+ * Group 17.
  */
 public class PathFinderEscape extends PathFinderBasic {
 
