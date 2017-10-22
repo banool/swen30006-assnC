@@ -17,6 +17,8 @@ public class PathFinderExplore implements IPathFinder {
     // A single trap section is a HashMap<Coordinate, TrapTile>. 
     // We have multiple of these for each contiguous section of traps.
     private ArrayList<HashMap<Coordinate, TrapTile>> trapSections;
+    // This is for keeping track of the current continguous section of traps.
+    private HashMap<Coordinate, TrapTile> currentTrapSection;
     
     private Stack<IPathFinder> pathFinderStack;
     private Sensor sensor;
@@ -37,7 +39,7 @@ public class PathFinderExplore implements IPathFinder {
 
     @Override
     public ArrayList<Coordinate> update() {
-        System.out.println(sensor.getOrientation());
+        trackTraps();
         if (!sensor.isDirectlyBesideTileOfTypes(tileTypesToAvoid)) {
             System.out.println("Getting adjacent to wall/trap");
             return getToWallTrap();
@@ -106,10 +108,25 @@ public class PathFinderExplore implements IPathFinder {
         }
         return target;
     }
+    
+    public void trackTraps() {
+        // TODO Add traps to the left to currentTrapSection if they're not broken up by a wall.
+        // If we see a wall, we need to "commit" the currentTrapSection to trapSections.
+    }
 
-    @Override
+    /**
+     * This method allows us to do something before we're done.
+     * In this case, we push an Escape pathfinder onto the stack for each trap section in trapSections.
+     * Each escape pathfinder takes the appropriate trap section as a constructor argument.
+     */
     public boolean isDone() {
-        return start == sensor.getPosition();
+        boolean done = (start == sensor.getPosition());
+        if (done) {
+            for (HashMap<Coordinate, TrapTile> trapSection : trapSections) {
+                pathFinderStack.push(new PathFinderEscape(pathFinderStack, sensor, trapSection));
+            }
+        }
+        return done;
     }
 
 }
