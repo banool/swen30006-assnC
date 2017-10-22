@@ -79,8 +79,8 @@ public class PathFollowerBasic implements IPathFollower {
 
             // If directed to do so, go straight
             WorldSpatial.RelativeDirection tarDirection = getDirection(tarDegree);
-            if (tarDirection == WorldSpatial.RelativeDirection.FORWARD ||
-                    tarDirection == WorldSpatial.RelativeDirection.BACKWARD) {
+            if (tarDirection == DirectionUtils.RelativeDirectionDU.FORWARD ||
+                    tarDirection == DirectionUtils.RelativeDirectionDU.BACKWARD) {
                 goForwardOrBackward(tarDirection, adjustVelocity(coord));
             }
 
@@ -188,7 +188,7 @@ public class PathFollowerBasic implements IPathFollower {
      */
     private void moveOnlyForward(float delta, Coordinate targetCoord) {
         Move.SpeedChange speedChange;
-        WorldSpatial.RelativeDirection direction = WorldSpatial.RelativeDirection.FORWARD;
+        WorldSpatial.RelativeDirection direction = DirectionUtils.RelativeDirectionDU.FORWARD;
 
         // Forward or reverse-acceleration based on the speed change specified in the Move.
         if (escapeMove.getSpeedChange() == Move.SpeedChange.ACCELERATE) {
@@ -306,13 +306,13 @@ public class PathFollowerBasic implements IPathFollower {
      * @param speedChange Represents the change in speed specified by the calling object.
      */
     private void goForwardOrBackward(WorldSpatial.RelativeDirection d, Move.SpeedChange speedChange) {
-        if (d == WorldSpatial.RelativeDirection.FORWARD) {
+        if (d == DirectionUtils.RelativeDirectionDU.FORWARD) {
             if (speedChange == Move.SpeedChange.ACCELERATE) {
                 controller.applyForwardAcceleration();
             } else if (speedChange == Move.SpeedChange.SLOWDOWN) {
                 controller.applyReverseAcceleration();
             }
-        } else if (d == WorldSpatial.RelativeDirection.BACKWARD) {
+        } else if (d == DirectionUtils.RelativeDirectionDU.BACKWARD) {
             if (speedChange == Move.SpeedChange.ACCELERATE) {
                 controller.applyReverseAcceleration();
             } else if (speedChange == Move.SpeedChange.SLOWDOWN) {
@@ -387,10 +387,10 @@ public class PathFollowerBasic implements IPathFollower {
         double carAngle = sensor.getAngle();
 
         if (tarAngle - carAngle == 0) {
-            return WorldSpatial.RelativeDirection.FORWARD;
+            return DirectionUtils.RelativeDirectionDU.FORWARD;
         } else if (tarAngle + 180 == carAngle ||
                 tarAngle - 180 == carAngle) {
-            return WorldSpatial.RelativeDirection.BACKWARD;
+            return DirectionUtils.RelativeDirectionDU.BACKWARD;
         } else if (Math.abs(carAngle - tarAngle) < 180) {
             if (carAngle < tarAngle) {
                 return WorldSpatial.RelativeDirection.LEFT;

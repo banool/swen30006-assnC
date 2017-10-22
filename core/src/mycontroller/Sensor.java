@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import tiles.MapTile;
 import world.WorldSpatial;
 import utilities.Coordinate;
+import utilities.DirectionUtils;
 
 /**
  * This class is soley responsible for handling how the car and AI reads its
@@ -63,7 +64,7 @@ public class Sensor {
      */
     private HashMap<Coordinate, MapTile> getTilesInDirection(WorldSpatial.Direction orientation) {
         HashMap<Coordinate, MapTile> tiles = new HashMap<Coordinate, MapTile>();
-        int[] mod = WorldSpatial.modMap.get(orientation);
+        int[] mod = DirectionUtils.MOD_MAP.get(orientation);
         for (int i = 1; i <= VISION_AHEAD; i++) {
             Coordinate toCheck = new Coordinate(currentPosition.x + (i * mod[0]), currentPosition.y + (i * mod[1]));
             tiles.put(toCheck, currentView.get(toCheck));
@@ -79,7 +80,7 @@ public class Sensor {
      * @return internal representation of the map/tiles (through hashmap of coordinates and tiles)
      */
     public HashMap<Coordinate,MapTile> getTilesInDirection(WorldSpatial.RelativeDirection direction) {
-        return getTilesInDirection(WorldSpatial.getToSideOf(orientation, direction));
+        return getTilesInDirection(DirectionUtils.getToSideOf(orientation, direction));
     }
 
     /**
@@ -118,7 +119,7 @@ public class Sensor {
      * @return coordinate of the closest tile
      */
     public Coordinate getClosestTileInDirectionOfTypes(WorldSpatial.RelativeDirection direction, ArrayList<MapTile.Type> tileTypes) {
-        return getClosestTileInDirectionOfTypes(WorldSpatial.getToSideOf(orientation, direction), tileTypes);      
+        return getClosestTileInDirectionOfTypes(DirectionUtils.getToSideOf(orientation, direction), tileTypes);      
     }
 
     /**
@@ -129,7 +130,7 @@ public class Sensor {
      * @return boolean true if the wall is on the car's LHS
      */
     public boolean isFollowingTileTypes(ArrayList<MapTile.Type> tileTypes) {
-        return getClosestTileInDirectionOfTypes(WorldSpatial.getLeftOf(orientation), tileTypes) != null;
+        return getClosestTileInDirectionOfTypes(DirectionUtils.getLeftOf(orientation), tileTypes) != null;
     }
     
     /**
@@ -151,7 +152,7 @@ public class Sensor {
      * @return boolean is true if the car is directly beside a tile in any direction
      */
     public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes, WorldSpatial.RelativeDirection direction) {
-        int[] modMap = WorldSpatial.modMap.get(WorldSpatial.getToSideOf(orientation, direction));
+        int[] modMap = DirectionUtils.MOD_MAP.get(DirectionUtils.getToSideOf(orientation, direction));
         if (direction == null || modMap[0] == 1) {
             if (tileTypes.contains(currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y)).getType())) {
                 return true;
@@ -230,8 +231,8 @@ public class Sensor {
      * @return coordinate of the furthest tile
      */
     public Coordinate getFurthestPointInDirection(WorldSpatial.Direction direction) {
-        int newX = currentPosition.x + WorldSpatial.modMap.get(direction)[0] * VISION_AHEAD;
-        int newY = currentPosition.y + WorldSpatial.modMap.get(direction)[1] * VISION_AHEAD;
+        int newX = currentPosition.x + DirectionUtils.MOD_MAP.get(direction)[0] * VISION_AHEAD;
+        int newY = currentPosition.y + DirectionUtils.MOD_MAP.get(direction)[1] * VISION_AHEAD;
         return new Coordinate(newX, newY);
     }
 

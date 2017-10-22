@@ -8,6 +8,7 @@ import mycontroller.Sensor;
 import tiles.MapTile;
 import tiles.TrapTile;
 import utilities.Coordinate;
+import utilities.DirectionUtils;
 import world.WorldSpatial;
 
 /**
@@ -85,8 +86,8 @@ public class PathFinderExplore extends PathFinderBasic {
     private void trackTraps() {
         ArrayList<MapTile.Type> traps = new ArrayList<MapTile.Type>();
         traps.add(MapTile.Type.TRAP);
-        int[] leftModMap = WorldSpatial.modMap
-                .get(WorldSpatial.getToSideOf(sensor.getOrientation(), WorldSpatial.RelativeDirection.LEFT));
+        int[] leftModMap = DirectionUtils.MOD_MAP
+                .get(DirectionUtils.getToSideOf(sensor.getOrientation(), WorldSpatial.RelativeDirection.LEFT));
         Coordinate left = new Coordinate(sensor.getPosition().x + leftModMap[0],
                 sensor.getPosition().y + leftModMap[1]);
         // If the tile to our left is part a trap, add it to the current trap section.

@@ -6,6 +6,7 @@ import java.util.Stack;
 import mycontroller.Sensor;
 import tiles.MapTile;
 import utilities.Coordinate;
+import utilities.DirectionUtils;
 import world.WorldSpatial;
 
 /**
@@ -73,7 +74,7 @@ public abstract class PathFinderBasic implements IPathFinder {
         if (targetCoordinate != null) {
             if (targetCoordinate.equals(sensor.getPosition())) {
                 // We're already at the target, so move the target forward.
-                int[] modMap = WorldSpatial.modMap.get(sensor.getOrientation());
+                int[] modMap = DirectionUtils.MOD_MAP.get(sensor.getOrientation());
                 targetCoordinate = new Coordinate(targetCoordinate.x + modMap[0] * sensor.getVisionAhead(),
                         targetCoordinate.y + modMap[1] * sensor.getVisionAhead());
                 targetCoordinate = sensor.getNearestTileOfTypesNearCoordinate(targetCoordinate, tileTypesToTarget);
@@ -144,7 +145,7 @@ public abstract class PathFinderBasic implements IPathFinder {
         // Using this point, check to the right of it for free road tiles to go to.
         Coordinate rightOfRoadNearWall = roadNearWall;
         for (int i = 0; i <= sensor.getVisionAhead(); i++) {
-            int[] rightModMap = WorldSpatial.modMap.get(WorldSpatial.getRightOf(sensor.getOrientation()));
+            int[] rightModMap = DirectionUtils.MOD_MAP.get(DirectionUtils.getRightOf(sensor.getOrientation()));
             Coordinate candidate = new Coordinate(roadNearWall.x + (i * rightModMap[0]),
                     roadNearWall.y + (i * rightModMap[1]));
             // If the coordinate to the right of the point near the wall is a road, set the
