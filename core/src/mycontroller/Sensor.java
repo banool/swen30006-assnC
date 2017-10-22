@@ -26,6 +26,7 @@ public class Sensor {
     private HashMap<Coordinate, MapTile> currentView;
     private double velocity;
     private Vector2 velocity2;
+    private int health;
 
     public Sensor(MyAIController controller) {
         this.controller = controller;
@@ -38,6 +39,7 @@ public class Sensor {
         this.orientation = controller.getOrientation();
         this.velocity = (double) controller.getSpeed();
         this.velocity2 = controller.getVelocity();
+        this.health = controller.getHealth();
     }
     
     /*************************************************************************
@@ -126,6 +128,13 @@ public class Sensor {
         return isDirectlyBesideTileOfTypes(tileTypes, null);
     }
     
+    /**
+     * Check if we're directly (within one tile) beside any of the given tile types.
+     * We can use a relative direction for this, where it'll just check to that side.
+     * @param tileTypes
+     * @param direction
+     * @return
+     */
     public boolean isDirectlyBesideTileOfTypes(ArrayList<MapTile.Type> tileTypes, WorldSpatial.RelativeDirection direction) {
         int[] modMap = WorldSpatial.modMap.get(WorldSpatial.getToSideOf(orientation, direction));
         if (direction == null || modMap[0] == 1) {
@@ -152,9 +161,9 @@ public class Sensor {
     }
     
     /**
-     * TODO comment. This returns the nearest tile that is one of the given types.
+     * This returns the nearest tile that is one of the given types.
      * @param tileTypes
-     * @return
+     * @return TODO
      */
     public Coordinate getNearestTileOfTypes(ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
@@ -179,7 +188,7 @@ public class Sensor {
      * @param tileTypes
      * @return
      */
-    public Coordinate getNearestTileTypesNearCoordinate(Coordinate coordinate, ArrayList<MapTile.Type> tileTypes) {
+    public Coordinate getNearestTileOfTypesNearCoordinate(Coordinate coordinate, ArrayList<MapTile.Type> tileTypes) {
         Coordinate nearest = null;
         for (Map.Entry<Coordinate, MapTile> entry : currentView.entrySet()) {
             Coordinate key = entry.getKey();
@@ -241,6 +250,10 @@ public class Sensor {
 
     public Vector2 getVelocity2() {
         return this.velocity2;
+    }
+
+    public int getHealth() {
+        return health;
     }
 
 }

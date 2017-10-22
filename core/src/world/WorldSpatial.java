@@ -40,17 +40,17 @@ public class WorldSpatial {
     }};
     
     /**
-     * TODO comment. Method for getting the counterclockwise orientation from the given orientation.
-     * @return
+     * Method for getting the counterclockwise orientation from the given orientation.
+     * @return TODO
      */
     public static Direction getLeftOf(Direction orientation) {
         return leftOf.get(orientation);
     }
     
     /**
-     * TODO comment. Method for getting the clockwise orientation from the given orientation.
+     * Method for getting the clockwise orientation from the given orientation.
      * We iterate through the leftOf map and get the key corresponding to the given value.
-     * @return
+     * @return TODO
      */
     public static Direction getRightOf(Direction orientation) {
         for (Entry<Direction, Direction> entry : leftOf.entrySet()) {
@@ -58,7 +58,6 @@ public class WorldSpatial {
                 return entry.getKey();
             }
         }
-        System.out.println("never");
         return null;
     }
     
@@ -72,8 +71,12 @@ public class WorldSpatial {
     public static Direction getToSideOf(Direction orientation, RelativeDirection direction) {
         if (direction == WorldSpatial.RelativeDirection.LEFT) {
             return getLeftOf(orientation);
-        } else {
+        } else if (direction == WorldSpatial.RelativeDirection.RIGHT) {
             return getRightOf(orientation);
+        } else if (direction == WorldSpatial.RelativeDirection.BACKWARD) {
+            return getLeftOf(getLeftOf(orientation));
+        } else {
+            return orientation;
         }
     }
     
