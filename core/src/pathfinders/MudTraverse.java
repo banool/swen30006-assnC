@@ -5,10 +5,18 @@ import utilities.Coordinate;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import mycontroller.Sensor;
+
 public class MudTraverse extends TrapTraverse {
 
-    public MudTraverse(Stack<IPathFinder> pathFinderStack) {
-        // STUB
+    private Sensor sensor;
+    private Coordinate start;
+    private Stack<IPathFinder> pathFinderStack;
+
+    public MudTraverse(Stack<IPathFinder> pathFinderStack, Sensor sensor) {
+        this.sensor = sensor;
+        start = sensor.getPosition();
+        this.pathFinderStack = pathFinderStack;
     }
 
     @Override
